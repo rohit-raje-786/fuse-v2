@@ -8,6 +8,8 @@ import {SafeCastLib} from "lib/solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "lib/solmate/src/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "lib/solmate/src/utils/FixedPointMathLib.sol";
 
+import {FusePoolController} from "./FusePoolController.sol";
+
 /// @title Fuse Pool Token (fToken)
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice ERC20 compatible representation of balances supplied to a Fuse Pool.
@@ -29,13 +31,15 @@ contract FuseToken is ERC20, Auth {
 
     /// @notice Create a new Vault Token.
     /// @param underlying The address of the underlying ERC20 token.
-    /// @param name ERC20 name of this token.
-    /// @param symbol ERC20 symbol of this token.
-    constructor(
-        ERC20 underlying,
-        string memory name,
-        string memory symbol
-    ) ERC20(name, symbol, underlying.decimals()) Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority()) {
+    /// @param controller The address of the contract's assigned Pool controller
+    constructor(ERC20 underlying, FusePoolController controller)
+        ERC20(
+            string(abi.encodePacked(controller.name(), underlying.name())),
+            string(abi.encodePacked(controller.symbol(), underlying.symbol())),
+            underlying.decimals()
+        )
+        Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority())
+    {
         // Set immutables.
         UNDERLYING = underlying;
         BASE_UNIT = 10**underlying.decimals();
