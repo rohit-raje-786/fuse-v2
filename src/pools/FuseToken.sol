@@ -28,10 +28,13 @@ contract FuseToken is ERC20, Auth {
 
     /// @notice Create a new Vault Token.
     /// @param underlying The address of the underlying ERC20 token.
-    constructor(ERC20 underlying, string memory name)
-        ERC20(name, string(abi.encodePacked("f", underlying.symbol())), underlying.decimals())
-        Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority())
-    {
+    /// @param name ERC20 name of this token.
+    /// @param symbol ERC20 symbol of this token.
+    constructor(
+        ERC20 underlying,
+        string memory name,
+        string memory symbol
+    ) ERC20(name, symbol, underlying.decimals()) Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority()) {
         // Set immutables.
         UNDERLYING = underlying;
         BASE_UNIT = 10**underlying.decimals();
