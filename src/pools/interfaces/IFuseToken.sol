@@ -30,4 +30,9 @@ interface IFuseToken {
     /*///////////////////////////////////////////////////////////////
                             ADMIN INTERFACE
     //////////////////////////////////////////////////////////////*/
+    
+    function setPoolController(address) external;
+    function sharedReserve(address) external;
+    function setReserveFactor(uint256) external;
+    function setInterestRateModel(address) external;
 }
