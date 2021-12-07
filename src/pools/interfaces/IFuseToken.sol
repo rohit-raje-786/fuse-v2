@@ -6,6 +6,17 @@ pragma solidity 0.8.10;
 interface IFuseToken {
 
     /*///////////////////////////////////////////////////////////////
+                                EVENTS
+    //////////////////////////////////////////////////////////////*/
+
+    event Deposit(address indexed user, uint256 underlyingAmount);
+    event Withdraw(address indexed user, uint256 underlyingAmount);
+
+    event Borrow(address indexed user, uint256 amount);
+    event RepayBorrow(address indexed user, uint256 amount);
+    event LiquidateBorrow(address indexed user, address indexed collateral, uint256 repayAmount);
+
+    /*///////////////////////////////////////////////////////////////
                             USER INTERFACE
     //////////////////////////////////////////////////////////////*/
 
