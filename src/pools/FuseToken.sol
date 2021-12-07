@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.10;
 
 import {Auth} from "lib/solmate/src/auth/Auth.sol";
