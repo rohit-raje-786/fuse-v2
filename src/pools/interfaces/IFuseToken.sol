@@ -2,7 +2,7 @@
 pragma solidity 0.8.10;
 
 /// @notice Fuse Token Interface
-/// @author Jet Jadeja
+/// @author Jet Jadeja <jet@rari.capital>
 interface IFuseToken {
 
     /*///////////////////////////////////////////////////////////////
