@@ -224,8 +224,7 @@ contract FuseToken is ERC20, Auth {
         require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
 
         // Mint fTokens to the user.
-        // TODO: Add exchangeRate calculation.
-        _mint(msg.sender, underlyingAmount);
+        _mint(msg.sender, underlyingAmount.fdiv(exchangeRate(), BASE_UNIT));
 
         // Transfer tokens from the user to the fToken contract.
         UNDERLYING.safeTransferFrom(msg.sender, address(this), underlyingAmount);
@@ -239,8 +238,7 @@ contract FuseToken is ERC20, Auth {
 
         // Burn fTokens the equivalent amount of fTokens.
         // This code will fail if the user does not have enough fTokens.
-        // TODO: Add exchangeRate calculation.
-        _burn(msg.sender, underlyingAmount);
+        _burn(msg.sender, underlyingAmount.fdiv(exchangeRate(), BASE_UNIT));
 
         // Transfer tokens from the fToken contract to the user.
         UNDERLYING.safeTransfer(msg.sender, underlyingAmount);
@@ -258,9 +256,32 @@ contract FuseToken is ERC20, Auth {
 
         // Burn fTokens the equivalent amount of fTokens.
         // This code will fail if the user does not have enough fTokens.
-        _burn(msg.sender, fTokenAmount);
+        _burn(msg.sender, fTokenAmount.fmul(exchangeRate(), BASE_UNIT));
 
         // Transfer tokens from the fToken contract to the user.
         UNDERLYING.safeTransfer(msg.sender, underlyingAmount);
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                            ACCOUNTING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Returns the exchange rate between fTokens and underlying tokens.
+    /// This value also represents the amount of underlying that one fToken can be redeemed for.
+    function exchangeRate() public view returns (uint256) {
+        // Retrieve the total supply of fTokens.
+        uint256 supply = totalSupply;
+
+        // If the totalSupply is 0, return a default exchange rate of 1.
+        if (totalSupply == 0) return BASE_UNIT;
+
+        // Return the exchange rate.
+        return totalHoldings().fdiv(supply, BASE_UNIT);
+    }
+
+    /// @notice Calculates the total amoung of underlying tokens controlled by this contract.
+    function totalHoldings() public view returns (uint256) {
+        // TODO: Actually calculate this value.
+        return UNDERLYING.balanceOf(address(this));
     }
 }
