@@ -262,4 +262,5 @@ contract FuseToken is ERC20, Auth {
 
         // Transfer tokens from the fToken contract to the user.
         UNDERLYING.safeTransfer(msg.sender, underlyingAmount);
+    }
 }
