@@ -12,12 +12,25 @@ import {FusePoolController} from "../pools/FusePoolController.sol";
 contract FuseTokenTest is DSTestPlus {
     FuseToken fuseToken;
     FusePoolController poolController;
-    MockERC20 mockERC20;
+    MockERC20 underlying;
 
     function setUp() public {
-        mockERC20 = new MockERC20("Mock Token", "MT", 18);
+        underlying = new MockERC20("Mock Token", "MT", 18);
         poolController = new FusePoolController("Fuse Pool Controller", "FPC");
 
-        fuseToken = new FuseToken(mockERC20, poolController);
+        fuseToken = new FuseToken(underlying, poolController);
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                        DEPOSIT/WITHDRAWAL TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function testAtomicDeposit() public {
+        uint256 amount = 1e18;
+
+        underlying.mint(address(this), amount);
+        underlying.approve(address(fuseToken), amount);
+
+        fuseToken.deposit(amount);
     }
 }
