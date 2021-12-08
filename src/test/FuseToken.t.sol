@@ -7,13 +7,17 @@ import {DSTestPlus} from "lib/solmate/src/test/utils/DSTestPlus.sol";
 import {MockERC20} from "lib/solmate/src/test/utils/mocks/MockERC20.sol";
 
 import {FuseToken} from "../pools/FuseToken.sol";
+import {FusePoolController} from "../pools/FusePoolController.sol";
 
 contract FuseTokenTest is DSTestPlus {
     FuseToken fuseToken;
+    FusePoolController poolController;
     MockERC20 mockERC20;
 
     function setUp() public {
         mockERC20 = new MockERC20("Mock Token", "MT", 18);
-        fuseToken = new FuseToken(mockERC20, "Fuse Test Token", "fTest");
+        poolController = new FusePoolController("Fuse Pool Controller", "FPC");
+
+        fuseToken = new FuseToken(mockERC20, poolController);
     }
 }
