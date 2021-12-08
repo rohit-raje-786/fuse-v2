@@ -311,4 +311,10 @@ contract FuseToken is ERC20, Auth {
         // TODO: Actually calculate this value.
         return UNDERLYING.balanceOf(address(this));
     }
+
+    /// @notice Get the underlying balance of an account
+    /// @param account The account to get the balance of.
+    function balanceOfUnderlying(address account) public view returns (uint256) {
+        return balanceOf[account].fmul(exchangeRate(), BASE_UNIT);
+    }
 }
