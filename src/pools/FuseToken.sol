@@ -8,6 +8,7 @@ import {SafeCastLib} from "lib/solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "lib/solmate/src/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "lib/solmate/src/utils/FixedPointMathLib.sol";
 
+import {IRateModel} from "./interfaces/IRateModel.sol";
 import {FusePoolController} from "./FusePoolController.sol";
 
 /// @title Fuse Pool Token (fToken)
@@ -54,6 +55,27 @@ contract FuseToken is ERC20, Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
-                                STORAGE
+                        RATE MODEL CONFIGURATION
     //////////////////////////////////////////////////////////////*/
+    /// @notice The address of the Rate Model contract.
+    /// @dev The Rate Model is used to calculate supply/borrow rates.
+    IRateModel public rateModel;
+
+    /// @notice Emmited when the Rate Model is updated.
+    /// @param user The authorized user who triggered the update.
+    /// @param newRateModel The address of the new Rate Model.
+    event RateModelUpdated(address indexed user, IRateModel indexed newRateModel);
+
+    /// @notice Set a new Rate Model.
+    /// @param newRateModel The address of the new Rate Model.
+    function setNewRateModel(IRateModel newRateModel) external requiresAuth {
+        // Ensure the new Rate Model is valid.
+        require(newRateModel.isRateModel(), "MODEL_NOT_VALID");
+
+        // Set the new Rate Model.
+        rateModel = newRateModel;
+
+        // Emit the event.
+        emit RateModelUpdated(msg.sender, newRateModel);
+    }
 }
