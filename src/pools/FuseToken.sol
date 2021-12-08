@@ -123,4 +123,30 @@ contract FuseToken is ERC20, Auth {
         // Emit the event.
         emit SharedReserveUpdated(msg.sender, newSharedReserve);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                        FEE RATE CONFIGURATION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice The percentage of interest set aside for fees.
+    /// @dev Fixed point value scaled by 1e18.
+    uint256 public feeRate;
+
+    /// @notice Emitted when the Fee Rate is updated.
+    /// @param user The authorized user who triggered the update.
+    /// @param newFeeRate The value of the new feeRate.
+    event FeeRateUpdated(address indexed user, uint256 newFeeRate);
+
+    /// @notice Set a new fee rate value.
+    /// @param newFeeRate The value of the new feeRate.
+    function setNewSharedReserve(uint256 newFeeRate) external requiresAuth {
+        // A fee rate above 100% is not valid.
+        require(newFeeRate <= 1e18, "RATE_TOO_HIGH");
+
+        // Set the new Fee Rate.
+        feeRate = newFeeRate;
+
+        // Emit the event.
+        emit FeeRateUpdated(msg.sender, newFeeRate);
+    }
 }
