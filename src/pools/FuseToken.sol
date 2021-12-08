@@ -78,4 +78,49 @@ contract FuseToken is ERC20, Auth {
         // Emit the event.
         emit RateModelUpdated(msg.sender, newRateModel);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                          RESERVE CONFIGURATION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice The percentage of interest set aside for reserves.
+    /// @dev Fixed point value scaled by 1e18.
+    uint256 public reserveRate;
+
+    /// @notice The address of the Shared Reserve contract.
+    /// @dev If address is set to 0, reserves are stored in the fToken.
+    address public sharedReserve;
+
+    /// @notice Emmited when the Reserve Rate is updated.
+    /// @param user The authorized user who triggered the update.
+    /// @param newReserveRate The value of the new reserveRate.
+    event ReserveRateUpdated(address indexed user, uint256 newReserveRate);
+
+    /// @notice Emmited when the Shared Reserve contract is updated.
+    /// @param user The authorized user who triggered the update.
+    /// @param newSharedReserve The address of the new SharedReserve contract.
+    event SharedReserveUpdated(address indexed user, address indexed newSharedReserve);
+
+    /// @notice Set a new Reserve Rate.
+    /// @param newReserveRate The value of the new reserveRate.
+    function setNewReserveRate(uint256 newReserveRate) external requiresAuth {
+        // A reserve rate above 100% is not valid.
+        require(newReserveRate <= 1e18, "RATE_TOO_HIGH");
+
+        // Set the new Reserve Rate.
+        reserveRate = newReserveRate;
+
+        // Emit the event.
+        emit ReserveRateUpdated(msg.sender, newReserveRate);
+    }
+
+    /// @notice Set a new Shared Reserve Contract.
+    /// @param newSharedReserve The address of the new shared reserve contract.
+    function setNewSharedReserve(address newSharedReserve) external requiresAuth {
+        // Set the new Reserve Rate.
+        sharedReserve = newSharedReserve;
+
+        // Emit the event.
+        emit SharedReserveUpdated(msg.sender, newSharedReserve);
+    }
 }
