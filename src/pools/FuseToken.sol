@@ -22,6 +22,9 @@ contract FuseToken is ERC20, Auth {
                                 IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice The address of the PoolController contract.
+    FusePoolController public immutable CONTROLLER;
+
     /// @notice The underlying token contract address supported by the fToken.
     ERC20 public immutable UNDERLYING;
 
@@ -41,6 +44,7 @@ contract FuseToken is ERC20, Auth {
         Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority())
     {
         // Set immutables.
+        CONTROLLER = controller;
         UNDERLYING = underlying;
         BASE_UNIT = 10**underlying.decimals();
 
@@ -48,4 +52,8 @@ contract FuseToken is ERC20, Auth {
         // If any tokens are minted, an overflow will occur.
         totalSupply = type(uint256).max;
     }
+
+    /*///////////////////////////////////////////////////////////////
+                                STORAGE
+    //////////////////////////////////////////////////////////////*/
 }
