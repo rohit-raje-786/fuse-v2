@@ -34,5 +34,25 @@ contract FuseTokenTest is DSTestPlus {
         underlying.approve(address(fuseToken), amount);
 
         fuseToken.deposit(amount);
+
+        assertEq(amount, fuseToken.balanceOf(address(this)));
+        assertEq(amount, fuseToken.totalSupply());
+        assertEq(amount, fuseToken.exchangeRate());
+    }
+
+    function testAtomicWithdrawal() public {
+        uint256 amount = 1e18;
+
+        testAtomicDeposit();
+        fuseToken.withdraw(amount);
+
+        assertEq(amount, underlying.balanceOf(address(this)));
+        assertEq(amount, fuseToken.exchangeRate());
+        assertEq(0, fuseToken.totalSupply());
+    }
+
+    function testAtomicRedeem() public {
+        testAtomicDeposit();
+        fuseToken.redeem(1e18);
     }
 }
