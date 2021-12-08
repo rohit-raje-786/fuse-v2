@@ -8,6 +8,7 @@ import {MockERC20} from "lib/solmate/src/test/utils/mocks/MockERC20.sol";
 
 import {FuseToken} from "../pools/FuseToken.sol";
 import {FusePoolController} from "../pools/FusePoolController.sol";
+import {IRateModel} from "../pools/interfaces/IRateModel.sol";
 
 contract FuseTokenTest is DSTestPlus {
     FuseToken fuseToken;
@@ -19,6 +20,7 @@ contract FuseTokenTest is DSTestPlus {
         poolController = new FusePoolController("Fuse Pool Controller", "FPC");
 
         fuseToken = new FuseToken(underlying, poolController);
+        fuseToken.initialize(0, 0, IRateModel(address(0)), 0, 0);
     }
 
     /*///////////////////////////////////////////////////////////////
