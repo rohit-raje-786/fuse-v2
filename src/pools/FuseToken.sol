@@ -202,4 +202,64 @@ contract FuseToken is ERC20, Auth {
         // Emit the event.
         emit FeeRateUpdated(msg.sender, newFeeRate);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                        DEPOSIT/WITHDRAWAL LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted after a successful deposit.
+    /// @param user The user who deposited.
+    /// @param amount The amount of underlying tokens deposited.
+    event Deposit(address indexed user, uint256 amount);
+
+    /// @notice Emitted after a successful withdrawal.
+    /// @param user The user who withdrew.
+    /// @param amount The amount of underlying tokens withdrew.
+    event Withdrawal(address indexed user, uint256 amount);
+
+    /// @notice Deposit a specific amount of underlying tokens.
+    /// @param underlyingAmount The amount of underlying tokens withdrawn.
+    function deposit(uint256 underlyingAmount) external {
+        // Ensure the amount is valid.
+        require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
+
+        // Mint fTokens to the user.
+        // TODO: Add exchangeRate calculation.
+        _mint(msg.sender, underlyingAmount);
+
+        // Transfer tokens from the user to the fToken contract.
+        UNDERLYING.safeTransferFrom(msg.sender, address(this), underlyingAmount);
+    }
+
+    /// @notice Withdraw a specific amount of underlying tokens.
+    /// @param underlyingAmount The amount of underlying tokens withdrawn.
+    function withdraw(uint256 underlyingAmount) external {
+        // Ensure the amount is valid.
+        require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
+
+        // Burn fTokens the equivalent amount of fTokens.
+        // This code will fail if the user does not have enough fTokens.
+        // TODO: Add exchangeRate calculation.
+        _burn(msg.sender, underlyingAmount);
+
+        // Transfer tokens from the fToken contract to the user.
+        UNDERLYING.safeTransfer(msg.sender, underlyingAmount);
+    }
+
+    /// @notice Redeem a specific amount of fTokens for underlying tokens.
+    /// @param fTokenAmount The amount of fTokens redeemed.
+    function redeem(uint256 fTokenAmount) external {
+        // Ensure the amount is valid.
+        require(fTokenAmount > 0, "AMOUNT_TOO_LOW");
+
+        // Determine the equivalent amount of underlying tokens.
+        // TODO: Add exchangeRate calculation.
+        uint256 underlyingAmount = fTokenAmount;
+
+        // Burn fTokens the equivalent amount of fTokens.
+        // This code will fail if the user does not have enough fTokens.
+        _burn(msg.sender, fTokenAmount);
+
+        // Transfer tokens from the fToken contract to the user.
+        UNDERLYING.safeTransfer(msg.sender, underlyingAmount);
 }
