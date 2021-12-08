@@ -55,6 +55,33 @@ contract FuseToken is ERC20, Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
+                            INITIALIZATION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Boolean indicating whether the fToken has been initialized.
+    bool isInitalized;
+
+    /// @notice Initialize the fToken.
+    function initialize(
+        uint256 _lendFactor,
+        uint256 _borrowFactor,
+        IRateModel _rateModel,
+        uint256 _reserveRate,
+        uint256 _feeRate
+    ) external requiresAuth {
+        require(!isInitalized, "fToken is already initialized.");
+
+        lendFactor = _lendFactor;
+        borrowFactor = _borrowFactor;
+        rateModel = _rateModel;
+        reserveRate = _reserveRate;
+        feeRate = _feeRate;
+
+        totalSupply = 0;
+        isInitalized = true;
+    }
+
+    /*///////////////////////////////////////////////////////////////
                        LENDING/BORROWING CONFIGURATION
     //////////////////////////////////////////////////////////////*/
 
