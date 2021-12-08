@@ -3,6 +3,9 @@ pragma solidity 0.8.10;
 /// @title Interest Rate Model Interface
 /// @author Jet Jadeja <jet@rari.capital>
 interface IRateModel {
+    /// @notice Indicator that this is an InterestRateModel contract (for inspection)
+    function isRateModel() external view returns (bool);
+
     /// @notice Calculate the current borrow interest rate per block.
     function getBorrowRate(uint256, uint256, uint256) external view returns (uint256);
 
