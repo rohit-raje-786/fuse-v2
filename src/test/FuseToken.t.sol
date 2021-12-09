@@ -52,7 +52,8 @@ contract FuseTokenTest is DSTestPlus {
     }
 
     function testAtomicRedeem() public {
+        uint256 amount = 1e18;
         testAtomicDeposit();
-        fuseToken.redeem(1e18);
+        fuseToken.redeem(amount);
     }
 }
