@@ -150,7 +150,7 @@ contract FuseToken is ERC20, Auth {
     /// @param newRateModel The address of the new Rate Model.
     function setNewRateModel(IRateModel newRateModel) external requiresAuth {
         // Ensure the new Rate Model is valid.
-        require(newRateModel !== address(0), "MODEL_NOT_VALID");
+        require(address(newRateModel) != address(0), "MODEL_NOT_VALID");
 
         // Set the new Rate Model.
         rateModel = newRateModel;
