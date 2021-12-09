@@ -19,8 +19,7 @@ contract FuseTokenTest is DSTestPlus {
         underlying = new MockERC20("Mock Token", "MT", 18);
         poolController = new FusePoolController("Fuse Pool Controller", "FPC");
 
-        fuseToken = new FuseToken(underlying, poolController);
-        fuseToken.initialize(0, 0, IRateModel(address(0)), 0, 0);
+        fuseToken = poolController.deployFuseToken(underlying, 0, 0, IRateModel(address(0)), 0, 0);
     }
 
     /*///////////////////////////////////////////////////////////////

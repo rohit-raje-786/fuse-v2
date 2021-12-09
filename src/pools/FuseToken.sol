@@ -42,7 +42,7 @@ contract FuseToken is ERC20, Auth {
             string(abi.encodePacked(controller.symbol(), underlying.symbol())),
             underlying.decimals()
         )
-        Auth(Auth(address(controller)).owner(), Auth(address(controller)).authority())
+        Auth(Auth(address(msg.sender)).owner(), Auth(address(msg.sender)).authority())
     {
         // Set immutables.
         CONTROLLER = controller;
