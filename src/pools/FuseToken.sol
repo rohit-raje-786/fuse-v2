@@ -35,17 +35,16 @@ contract FuseToken is ERC20, Auth {
 
     /// @notice Create a new Vault Token.
     /// @param underlying The address of the underlying ERC20 token.
-    /// @param controller The address of the contract's assigned Pool controller
-    constructor(ERC20 underlying, FusePoolController controller)
+    constructor(ERC20 underlying)
         ERC20(
-            string(abi.encodePacked(controller.name(), underlying.name())),
-            string(abi.encodePacked(controller.symbol(), underlying.symbol())),
+            string(abi.encodePacked(FusePoolController(msg.sender).name(), underlying.name())),
+            string(abi.encodePacked(FusePoolController(msg.sender).symbol(), underlying.symbol())),
             underlying.decimals()
         )
         Auth(Auth(address(msg.sender)).owner(), Auth(address(msg.sender)).authority())
     {
         // Set immutables.
-        CONTROLLER = controller;
+        CONTROLLER = FusePoolController(msg.sender);
         UNDERLYING = underlying;
         BASE_UNIT = 10**underlying.decimals();
 
