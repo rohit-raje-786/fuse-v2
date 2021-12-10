@@ -33,7 +33,7 @@ contract FuseToken is ERC20, Auth {
     /// @dev Equivalent to 10 ** decimals (used for fixed point math).
     uint256 public immutable BASE_UNIT;
 
-    /// @notice Create a new Vault Token.
+    /// @notice Create a new Fuse Token.
     /// @param underlying The address of the underlying ERC20 token.
     constructor(ERC20 underlying)
         ERC20(
