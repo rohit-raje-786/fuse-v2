@@ -26,7 +26,7 @@ contract FusePoolController is Auth {
         uint256 reserveRate,
         uint256 feeRate
     ) external returns (FuseToken) {
-        FuseToken fuseToken = new FuseToken(token, this);
+        FuseToken fuseToken = new FuseToken(token);
         fuseToken.initialize(lendFactor, borrowFactor, rateModel, reserveRate, feeRate);
 
         return fuseToken;
