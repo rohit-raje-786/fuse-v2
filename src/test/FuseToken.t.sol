@@ -6,11 +6,11 @@ import {Authority} from "lib/solmate/src/auth/Auth.sol";
 import {DSTestPlus} from "lib/solmate/src/test/utils/DSTestPlus.sol";
 import {MockERC20} from "lib/solmate/src/test/utils/mocks/MockERC20.sol";
 
-import {FuseToken} from "../pools/FuseToken.sol";
+import {FusePoolToken} from "../pools/FusePoolToken.sol";
 import {FusePoolController} from "../pools/FusePoolController.sol";
 import {IRateModel} from "../pools/interfaces/IRateModel.sol";
 
-contract FuseTokenTest is DSTestPlus {
+contract FusePoolTokenTest is DSTestPlus {
     FuseToken fuseToken;
     FusePoolController poolController;
     MockERC20 underlying;

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.10;
 
-import {FuseToken, IRateModel} from "./FuseToken.sol";
+import {FusePoolToken} from "./FusePoolToken.sol";
+import {IRateModel} from "./interfaces/IRateModel.sol";
 
 import {ERC20} from "lib/solmate/src/tokens/ERC20.sol";
 import {Auth, Authority} from "lib/solmate/src/Auth/Auth.sol";
@@ -25,10 +26,10 @@ contract FusePoolController is Auth {
         IRateModel rateModel,
         uint256 reserveRate,
         uint256 feeRate
-    ) external returns (FuseToken) {
-        FuseToken fuseToken = new FuseToken(token);
-        fuseToken.initialize(lendFactor, borrowFactor, rateModel, reserveRate, feeRate);
+    ) external returns (FusePoolToken) {
+        FusePoolToken fusePoolToken = new FusePoolToken(token);
+        fusePoolToken.initialize(lendFactor, borrowFactor, rateModel, reserveRate, feeRate);
 
-        return fuseToken;
+        return fusePoolToken;
     }
 }
