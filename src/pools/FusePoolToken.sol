@@ -14,7 +14,7 @@ import {FusePoolController} from "./FusePoolController.sol";
 /// @title Fuse Pool Token (fToken)
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice ERC20 compatible representation of balances supplied to a Fuse Pool.
-contract FuseToken is ERC20, Auth {
+contract FusePoolToken is ERC20, Auth {
     using SafeCastLib for uint256;
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
@@ -33,7 +33,7 @@ contract FuseToken is ERC20, Auth {
     /// @dev Equivalent to 10 ** decimals (used for fixed point math).
     uint256 public immutable BASE_UNIT;
 
-    /// @notice Create a new Fuse Token.
+    /// @notice Create a new Fuse Pool Token.
     /// @param underlying The address of the underlying ERC20 token.
     constructor(ERC20 underlying)
         ERC20(
