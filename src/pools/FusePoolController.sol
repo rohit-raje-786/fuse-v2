@@ -9,7 +9,8 @@ import {Auth, Authority} from "lib/solmate/src/Auth/Auth.sol";
 
 /// @title Fuse Pool Controller
 /// @author Jet Jadeja <jet@rari.capital>
-/// @notice This contract is used to manage the Fuse Pool. TODO: change this
+/// @notice This contract serves as the risk management layer for the Fuse Pool.
+/// and is directly responsible for managing user positions and liquidations.
 contract FusePoolController is Auth {
     string public name;
     string public symbol;
