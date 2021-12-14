@@ -24,6 +24,22 @@ contract FusePoolManager is Auth {
         symbol = _symbol;
     }
 
+    mapping(ERC20 => Asset) public assets;
+
+    struct Asset {
+        /// @notice Multiplier representing the value that one can borrow against their collateral.
+        /// A value of 0.5 means that the borrower can borrow up to 50% of the value of their collateral
+        /// @dev Fixed point value scaled by 1e18.
+        uint256 lendFactor;
+        /// @notice Multiplier representing the value that one can borrow against their borrowable value.
+        /// If the collateral factor of an asset is 0.8, and the borrow factor is 0.5,
+        /// while the collateral factor dictates that one can borrow 80% of the value of their collateral,
+        /// since the borrow factor is 0.5, the borrower can borrow up to 50% of the value of their borrowable value.
+        /// Which is the equivalent of 40% of the value of their collateral.
+        /// @dev Fixed point value scaled by 1e18.
+        uint256 borrowFactor;
+    }
+
     /// @notice Deploy a new FusePoolToken
     /// @param token The address of the underlying ERC20 token.
     /// @param lendFactor Multiplier representing the value that one can borrow against their collateral.
@@ -40,7 +56,9 @@ contract FusePoolManager is Auth {
         uint256 feeRate
     ) external returns (FusePoolToken) {
         FusePoolToken fusePoolToken = new FusePoolToken(token);
-        fusePoolToken.initialize(lendFactor, borrowFactor, rateModel, reserveRate, feeRate);
+        fusePoolToken.initialize(rateModel, reserveRate, feeRate);
+
+        assets[token] = Asset({lendFactor: lendFactor, borrowFactor: borrowFactor});
 
         return fusePoolToken;
     }
