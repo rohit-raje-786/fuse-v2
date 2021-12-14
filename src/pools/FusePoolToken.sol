@@ -9,7 +9,7 @@ import {SafeTransferLib} from "lib/solmate/src/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "lib/solmate/src/utils/FixedPointMathLib.sol";
 
 import {IRateModel} from "./interfaces/IRateModel.sol";
-import {FusePoolController} from "./FusePoolController.sol";
+import {FusePoolManager} from "./FusePoolManager.sol";
 
 /// @title Fuse Pool Token (fToken)
 /// @author Jet Jadeja <jet@rari.capital>
@@ -23,8 +23,8 @@ contract FusePoolToken is ERC20, Auth {
                                 IMMUTABLES
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice The address of the PoolController contract.
-    FusePoolController public immutable CONTROLLER;
+    /// @notice The address of the FusePoolManager contract.
+    FusePoolManager public immutable MANAGER;
 
     /// @notice The underlying token contract address supported by the fToken.
     ERC20 public immutable UNDERLYING;
@@ -37,14 +37,14 @@ contract FusePoolToken is ERC20, Auth {
     /// @param underlying The address of the underlying ERC20 token.
     constructor(ERC20 underlying)
         ERC20(
-            string(abi.encodePacked(FusePoolController(msg.sender).name(), underlying.name())),
-            string(abi.encodePacked(FusePoolController(msg.sender).symbol(), underlying.symbol())),
+            string(abi.encodePacked(FusePoolManager(msg.sender).name(), underlying.name())),
+            string(abi.encodePacked(FusePoolManager(msg.sender).symbol(), underlying.symbol())),
             underlying.decimals()
         )
         Auth(Auth(address(msg.sender)).owner(), Auth(address(msg.sender)).authority())
     {
         // Set immutables.
-        CONTROLLER = FusePoolController(msg.sender);
+        MANAGER = FusePoolManager(msg.sender);
         UNDERLYING = underlying;
         BASE_UNIT = 10**underlying.decimals();
 

@@ -7,11 +7,11 @@ import {IRateModel} from "./interfaces/IRateModel.sol";
 import {ERC20} from "lib/solmate/src/tokens/ERC20.sol";
 import {Auth, Authority} from "lib/solmate/src/Auth/Auth.sol";
 
-/// @title Fuse Pool Controller
+/// @title Fuse Pool Manager
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice This contract serves as the risk management layer for the Fuse Pool.
 /// and is directly responsible for managing user positions and liquidations.
-contract FusePoolController is Auth {
+contract FusePoolManager is Auth {
     string public name;
     string public symbol;
 
