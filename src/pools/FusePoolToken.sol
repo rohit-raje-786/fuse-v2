@@ -62,75 +62,18 @@ contract FusePoolToken is ERC20, Auth {
 
     /// @notice Initialize the fToken.
     function initialize(
-        uint256 _lendFactor,
-        uint256 _borrowFactor,
         IRateModel _rateModel,
         uint256 _reserveRate,
         uint256 _feeRate
     ) external requiresAuth {
         require(!isInitalized, "fToken is already initialized.");
 
-        lendFactor = _lendFactor;
-        borrowFactor = _borrowFactor;
         rateModel = _rateModel;
         reserveRate = _reserveRate;
         feeRate = _feeRate;
 
         totalSupply = 0;
         isInitalized = true;
-    }
-
-    /*///////////////////////////////////////////////////////////////
-                       LENDING/BORROWING CONFIGURATION
-    //////////////////////////////////////////////////////////////*/
-
-    /// @notice Multiplier representing the value that one can borrow against their collateral.
-    /// A value of 0.5 means that the borrower can borrow up to 50% of the value of their collateral
-    /// @dev Fixed point value scaled by 1e18.
-    uint256 public lendFactor;
-
-    /// @notice Multiplier representing the value that one can borrow against their borrowable value.
-    /// If the collateral factor of an asset is 0.8, and the borrow factor is 0.5,
-    /// while the collateral factor dictates that one can borrow 80% of the value of their collateral,
-    /// since the borrow factor is 0.5, the borrower can borrow up to 50% of the value of their borrowable value.
-    /// Which is the equivalent of 40% of the value of their collateral.
-    /// @dev Fixed point value scaled by 1e18.
-    uint256 public borrowFactor;
-
-    /// @notice Emitted when the lend factor is updated.
-    /// @param user The authorized user who triggered the update.
-    /// @param newLendFactor The value of the new lend factor.
-    event LendFactorUpdated(address indexed user, uint256 newLendFactor);
-
-    /// @notice Emitted when the borrow factor is updated.
-    /// @param user The authorized user who triggered the update.
-    /// @param newBorrowFactor The value of the new borrow factor.
-    event BorrowFactorUpdated(address indexed user, uint256 newBorrowFactor);
-
-    /// @notice Set a new lend factor.
-    /// @param newLendFactor The address of the new Rate Model.
-    function setNewLendFactor(uint256 newLendFactor) external requiresAuth {
-        // A lend factor above 100% is not valid.
-        require(newLendFactor >= 1e18, "RATE_TOO_HIGH");
-
-        // Set the new lend factor.
-        lendFactor = newLendFactor;
-
-        // Emit the event.
-        emit LendFactorUpdated(msg.sender, newLendFactor);
-    }
-
-    /// @notice Set a new borrow factor.
-    /// @param newBorrowFactor The address of the new Rate Model.
-    function setNewBorrowFactor(uint256 newBorrowFactor) external requiresAuth {
-        // A borrow factor above 100% is not valid.
-        require(newBorrowFactor >= 1e18, "RATE_TOO_HIGH");
-
-        // Set the new borrow factor.
-        borrowFactor = newBorrowFactor;
-
-        // Emit the event.
-        emit BorrowFactorUpdated(msg.sender, newBorrowFactor);
     }
 
     /*///////////////////////////////////////////////////////////////
