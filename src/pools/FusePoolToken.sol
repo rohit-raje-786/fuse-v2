@@ -136,7 +136,7 @@ contract FusePoolToken is ERC20, Auth {
     /*///////////////////////////////////////////////////////////////
                         RATE MODEL CONFIGURATION
     //////////////////////////////////////////////////////////////*/
-    /// @notice The address of the Rate Model contract.
+    /// @notice The address of the RateModel contract.
     /// @dev The Rate Model is used to calculate supply/borrow rates.
     IRateModel public rateModel;
 

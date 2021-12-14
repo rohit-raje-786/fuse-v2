@@ -9,17 +9,28 @@ import {Auth, Authority} from "lib/solmate/src/Auth/Auth.sol";
 
 /// @title Fuse Pool Manager
 /// @author Jet Jadeja <jet@rari.capital>
-/// @notice This contract serves as the risk management layer for the Fuse Pool.
-/// and is directly responsible for managing user positions and liquidations.
+/// @notice This contract serves as the risk management layer for the Fuse Pool
+/// and is directly responsible for managing assets, user positions, and liquidations.
 contract FusePoolManager is Auth {
+    /// @notice The name of the Fuse Pool
     string public name;
+
+    /// @notice The Fuse Pool's Symbol
     string public symbol;
 
+    /// @notice Deploy a new FusePoolManager contract
     constructor(string memory _name, string memory _symbol) Auth(msg.sender, Authority(msg.sender)) {
         name = _name;
         symbol = _symbol;
     }
 
+    /// @notice Deploy a new FusePoolToken
+    /// @param token The address of the underlying ERC20 token.
+    /// @param lendFactor Multiplier representing the value that one can borrow against their collateral.
+    /// @param borrowFactor Multiplier representing the value that one can borrow against their borrowable value.
+    /// @param rateModel The address RateModel contract.
+    /// @param reserveRate The percentage of interest that will be set aside for reserves.
+    /// @param feeRate The percentage of interest that will be set aside for fees.
     function deployFuseToken(
         ERC20 token,
         uint256 lendFactor,
