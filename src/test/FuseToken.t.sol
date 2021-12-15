@@ -16,9 +16,9 @@ contract FusePoolTokenTest is DSTestPlus {
     MockERC20 underlying;
 
     function setUp() public {
+        // Initialize Fuse contracts
         underlying = new MockERC20("Mock Token", "MT", 18);
         poolManager = new FusePoolManager("Fuse Pool Manager", "FPN");
-
         fuseToken = poolManager.deployFuseToken(underlying, 0, 0, IRateModel(address(0)), 0, 0);
     }
 
@@ -27,22 +27,26 @@ contract FusePoolTokenTest is DSTestPlus {
     //////////////////////////////////////////////////////////////*/
 
     function testAtomicDeposit() public {
+        // Mint and approve underlying tokens to FusePoolToken
         uint256 amount = 1e18;
-
         underlying.mint(address(this), amount);
         underlying.approve(address(fuseToken), amount);
 
+        // Deposit tokens
         fuseToken.deposit(amount);
 
+        // Ensure values are correct.
         assertEq(amount, fuseToken.balanceOf(address(this)));
         assertEq(amount, fuseToken.totalSupply());
         assertEq(amount, fuseToken.exchangeRate());
     }
 
     function testAtomicWithdrawal() public {
+        // Mint and deposit underlying tokens.
         uint256 amount = 1e18;
-
         testAtomicDeposit();
+
+        // Withdraw tokens.
         fuseToken.withdraw(amount);
 
         assertEq(amount, underlying.balanceOf(address(this)));
