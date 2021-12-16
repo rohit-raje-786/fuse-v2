@@ -24,6 +24,8 @@ contract FusePoolManager is Auth {
         symbol = _symbol;
     }
 
+    /// @notice Maps the address of a FusePoolToken to a struct containing
+    /// the asset's lend and borrow factors.
     mapping(ERC20 => Asset) public assets;
 
     struct Asset {
