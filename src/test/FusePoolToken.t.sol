@@ -11,7 +11,7 @@ import {FusePoolManager} from "../pools/FusePoolManager.sol";
 import {IRateModel} from "../pools/interfaces/IRateModel.sol";
 
 contract FusePoolTokenTest is DSTestPlus {
-    FuseToken fuseToken;
+    FusePoolToken fuseToken;
     FusePoolManager poolManager;
     MockERC20 underlying;
 
