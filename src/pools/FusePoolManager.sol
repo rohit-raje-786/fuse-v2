@@ -12,10 +12,13 @@ import {Auth, Authority} from "lib/solmate/src/Auth/Auth.sol";
 /// @notice This contract serves as the risk management layer for the Fuse Pool
 /// and is directly responsible for managing assets, user positions, and liquidations.
 contract FusePoolManager is Auth {
-    /// @notice The name of the Fuse Pool
+    /*///////////////////////////////////////////////////////////////
+                            METADATA STORAGE
+    //////////////////////////////////////////////////////////////*/
+    /// @notice The name of the Fuse Pool.
     string public name;
 
-    /// @notice The Fuse Pool's Symbol
+    /// @notice The symbol of the Fuse Pool.
     string public symbol;
 
     /// @notice Deploy a new FusePoolManager contract
@@ -24,9 +27,16 @@ contract FusePoolManager is Auth {
         symbol = _symbol;
     }
 
-    /// @notice Maps the address of a FusePoolToken to a struct containing
-    /// the asset's lend and borrow factors.
-    mapping(ERC20 => Asset) public assets;
+    /*///////////////////////////////////////////////////////////////
+                               ASSET STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Maps underlying tokens to the FusePoolTokens that holds them.
+    mapping(ERC20 => FusePoolToken) public poolTokens;
+
+    /// @notice Maps a FusePoolToken to a struct containing
+    /// the its lend and borrow factors.
+    mapping(FusePoolToken => Asset) public assets;
 
     struct Asset {
         /// @notice Multiplier representing the value that one can borrow against their collateral.
@@ -60,7 +70,8 @@ contract FusePoolManager is Auth {
         FusePoolToken fusePoolToken = new FusePoolToken(token);
         fusePoolToken.initialize(rateModel, reserveRate, feeRate);
 
-        assets[token] = Asset({lendFactor: lendFactor, borrowFactor: borrowFactor});
+        poolTokens[token] = fusePoolToken;
+        assets[fusePoolToken] = Asset({lendFactor: lendFactor, borrowFactor: borrowFactor});
 
         return fusePoolToken;
     }
