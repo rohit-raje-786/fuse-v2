@@ -1,24 +1,28 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.10;
 
-import {WETH} from "lib/solmate/src/tokens/WETH.sol";
-import {Authority} from "lib/solmate/src/auth/Auth.sol";
 import {DSTestPlus} from "lib/solmate/src/test/utils/DSTestPlus.sol";
 import {MockERC20} from "lib/solmate/src/test/utils/mocks/MockERC20.sol";
+
+import {TrustAuthority} from "lib/solmate/src/auth/authorities/TrustAuthority.sol";
+import {Authority} from "lib/solmate/src/Auth/Auth.sol";
 
 import {FusePoolToken} from "../pools/FusePoolToken.sol";
 import {FusePoolManager} from "../pools/FusePoolManager.sol";
 import {IRateModel} from "../pools/interfaces/IRateModel.sol";
 
 contract FusePoolTokenTest is DSTestPlus {
-    FusePoolToken fuseToken;
-    FusePoolManager poolManager;
     MockERC20 underlying;
+    TrustAuthority authority;
+
+    FusePoolManager poolManager;
+    FusePoolToken fuseToken;
 
     function setUp() public {
-        // Initialize Fuse contracts
+        // Deploy Fuse contracts
         underlying = new MockERC20("Mock Token", "MT", 18);
-        poolManager = new FusePoolManager("Fuse Pool Manager", "FPN");
+        authority = new TrustAuthority(address(this));
+        poolManager = new FusePoolManager(Authority(address(authority)), "Fuse Pool Manager", "FPN");
         fuseToken = poolManager.deployFuseToken(underlying, 0, 0, IRateModel(address(0)), 0, 0);
     }
 
