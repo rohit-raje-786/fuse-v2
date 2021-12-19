@@ -61,11 +61,13 @@ contract FusePoolToken is ERC20, Auth {
     bool isInitalized;
 
     /// @notice Initialize the fToken.
+    /// @dev This method does not require auth as it should
+    /// be called in the same call as the constructor.
     function initialize(
         IRateModel _rateModel,
         uint256 _reserveRate,
         uint256 _feeRate
-    ) external requiresAuth {
+    ) external {
         require(!isInitalized, "fToken is already initialized.");
 
         rateModel = _rateModel;
