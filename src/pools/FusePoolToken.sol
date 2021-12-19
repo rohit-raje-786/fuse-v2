@@ -246,10 +246,27 @@ contract FusePoolToken is ERC20, Auth {
 
         // Facilitate a borrow through the manager.
         // This call will fail if the borrower does not have enough collateral
-        // MANAGER.canBorrow(msg.sender, amount, balanceOf(msg.sender));
+        // MANAGER.borrow(msg.sender, amount, balanceOf(msg.sender));
 
         // Emit the event.
         //emit Borrow(msg.sender, poolToken.address, amount);
+    }
+
+    /// @notice Repay a specific amount of underlying tokens.
+    /// @param poolToken The address of the FusePoolToken contract
+    /// that holds the underlying asset to be repaid.
+    /// @param amount The amount of underlying tokens to repay.
+    function repay(FusePoolToken poolToken, uint256 amount) public {
+        // Ensure the inputted values are valid.
+        require(amount > 0, "AMOUNT_TOO_LOW");
+        require(address(poolToken) != address(0), "POOL_TOKEN_NOT_VALID");
+
+        // Facilitate a repayment through the manager.
+        // This call will fail if the borrower does not have enough collateral
+        // MANAGER.repay(msg.sender, amount, balanceOf(msg.sender));
+
+        // Emit the event.
+        //emit Repay(msg.sender, poolToken.address, amount);
     }
 
     /*///////////////////////////////////////////////////////////////
