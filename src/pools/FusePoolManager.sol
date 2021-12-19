@@ -22,7 +22,14 @@ contract FusePoolManager is Auth {
     string public symbol;
 
     /// @notice Deploy a new FusePoolManager contract
-    constructor(string memory _name, string memory _symbol) Auth(msg.sender, Authority(msg.sender)) {
+    /// @param authority The address of an authority contract
+    /// @param _name The name of the Fuse Pool.
+    /// @param _symbol The symbol of the Fuse Pool.
+    constructor(
+        Authority authority,
+        string memory _name,
+        string memory _symbol
+    ) Auth(msg.sender, authority) {
         name = _name;
         symbol = _symbol;
     }
