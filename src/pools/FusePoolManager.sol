@@ -30,6 +30,7 @@ contract FusePoolManager is Auth {
         string memory _name,
         string memory _symbol
     ) Auth(msg.sender, authority) {
+        // Set the name and symbol of the contract.
         name = _name;
         symbol = _symbol;
     }
