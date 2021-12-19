@@ -42,9 +42,12 @@ contract FusePoolManager is Auth {
     /// @notice Maps underlying tokens to the FusePoolTokens that holds them.
     mapping(ERC20 => FusePoolToken) public poolTokens;
 
-    /// @notice Maps a FusePoolToken to a struct containing
-    /// the its lend and borrow factors.
+    /// @notice Maps FusePoolTokens to structs containing
+    /// its lend and borrow factors.
     mapping(FusePoolToken => Asset) public assets;
+
+    /// @notice Maps FusePoolTokens to a boolean indicating whether it has been initialized.
+    mapping(FusePoolToken => bool) public initialized;
 
     struct Asset {
         /// @notice Multiplier representing the value that one can borrow against their collateral.
@@ -82,6 +85,7 @@ contract FusePoolManager is Auth {
         // Register the FusePoolToken contract.
         poolTokens[token] = fusePoolToken;
         assets[fusePoolToken] = Asset({lendFactor: lendFactor, borrowFactor: borrowFactor});
+        initialized[fusePoolToken] = true;
 
         // Return the address of the FusePoolToken.
         return fusePoolToken;
