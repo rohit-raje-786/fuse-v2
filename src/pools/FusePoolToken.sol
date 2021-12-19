@@ -46,7 +46,7 @@ contract FusePoolToken is ERC20, Auth {
         // Set immutables.
         MANAGER = FusePoolManager(msg.sender);
         UNDERLYING = underlying;
-        BASE_UNIT = 10**underlying.decimals();
+        BASE_UNIT = 10**decimals;
 
         // Prevent minting of fTokens by setting supply to 2^256 - 1.
         // If any tokens are minted, an overflow will occur.
