@@ -67,12 +67,15 @@ contract FusePoolManager is Auth {
         uint256 reserveRate,
         uint256 feeRate
     ) external returns (FusePoolToken) {
+        // Deploy a new FusePoolToken.
         FusePoolToken fusePoolToken = new FusePoolToken(token);
         fusePoolToken.initialize(rateModel, reserveRate, feeRate);
 
+        // Register the FusePoolToken contract.
         poolTokens[token] = fusePoolToken;
         assets[fusePoolToken] = Asset({lendFactor: lendFactor, borrowFactor: borrowFactor});
 
+        // Return the address of the FusePoolToken.
         return fusePoolToken;
     }
 }
