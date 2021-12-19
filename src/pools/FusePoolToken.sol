@@ -235,6 +235,18 @@ contract FusePoolToken is ERC20, Auth {
                             BORROW/REPAY LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted after a successful borrow.
+    /// @param user The user who borrowed the underlying asset.
+    /// @param asset The address of the fToken holding the borrowed asset.
+    /// @param amount The amount of underlying tokens borrowed.
+    event Borrow(address indexed user, FusePoolToken indexed asset, uint256 amount);
+
+    /// @notice Emitted after a successful repayment
+    /// @param user The user who repaid the underlying asset.
+    /// @param asset The address of the fToken holding the repaid asset.
+    /// @param amount The amount of underlying tokens repaid.
+    event Repay(address indexed user, FusePoolToken indexed asset, uint256 amount);
+
     /// @notice Borrow a specific amount of underlying tokens.
     /// @param poolToken The address of the FusePoolToken contract
     /// that holds the underlying asset to be borrowed.
@@ -249,7 +261,7 @@ contract FusePoolToken is ERC20, Auth {
         // MANAGER.borrow(msg.sender, amount, balanceOf(msg.sender));
 
         // Emit the event.
-        //emit Borrow(msg.sender, poolToken.address, amount);
+        emit Borrow(msg.sender, poolToken, amount);
     }
 
     /// @notice Repay a specific amount of underlying tokens.
@@ -266,7 +278,7 @@ contract FusePoolToken is ERC20, Auth {
         // MANAGER.repay(msg.sender, amount, balanceOf(msg.sender));
 
         // Emit the event.
-        //emit Repay(msg.sender, poolToken.address, amount);
+        emit Repay(msg.sender, poolToken, amount);
     }
 
     /*///////////////////////////////////////////////////////////////
