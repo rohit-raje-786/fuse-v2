@@ -76,7 +76,7 @@ contract FusePoolManager is Auth {
     /// @param rateModel The address RateModel contract.
     /// @param reserveRate The percentage of interest that will be set aside for reserves.
     /// @param feeRate The percentage of interest that will be set aside for fees.
-    function deployFuseToken(
+    function deployFusePoolToken(
         ERC20 token,
         uint256 lendFactor,
         uint256 borrowFactor,
