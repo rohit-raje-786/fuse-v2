@@ -137,9 +137,6 @@ contract FusePoolManager is Auth {
     /// If the asset is already in the user's list, this function will simply return.
     /// @param asset The address of the fToken representing the asset.
     function addAsset(FusePoolToken asset) external {
-        // Ensure that the caller is a verified fToken.
-        require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
-
         // Add the asset to the user's list of used assets.
         userUsedAssets[msg.sender][asset] = true;
         userAssets[msg.sender].push(asset);
