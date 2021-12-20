@@ -183,6 +183,9 @@ contract FusePoolManager is Auth {
         if (!userUsedAssets[user][FusePoolToken(msg.sender)]) {
             userAssets[user].push(FusePoolToken(msg.sender));
             userUsedAssets[user][FusePoolToken(msg.sender)] = true;
+
+            // Emit the new asset event.
+            emit NewAsset(user, FusePoolToken(msg.sender));
         }
 
         // Ensure that the oracle is available.
