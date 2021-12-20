@@ -37,7 +37,7 @@ contract FusePoolManager is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
-                               ASSET STORAGE
+                            ASSET CONFIGURATION
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Maps underlying tokens to the FusePoolTokens that holds them.
@@ -93,7 +93,7 @@ contract FusePoolManager is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
-                             ORACLE STORAGE
+                             ORACLE CONFIGURATION
     //////////////////////////////////////////////////////////////*/
 
     /// @notice The address of the oracle contract.
