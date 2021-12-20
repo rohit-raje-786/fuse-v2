@@ -100,6 +100,20 @@ contract FusePoolManager is Auth {
     /// @dev If this value is not set, price-reliant methods will fail.
     IPriceOracle public priceOracle;
 
+    /// @notice Emitted when a new price oracle is deployed.
+    /// @param priceOracle The address of the new price oracle contract.
+    event NewPriceOracle(IPriceOracle indexed priceOracle);
+
+    /// @notice Set a new price oracle contract.
+    /// @param newPriceOracle The address of the new price oracle contract.
+    function setPriceOracle(IPriceOracle newPriceOracle) external {
+        // Set the new price oracle.
+        priceOracle = newPriceOracle;
+
+        // Emit the new price oracle event.
+        emit NewPriceOracle(newPriceOracle);
+    }
+
     /*///////////////////////////////////////////////////////////////
                             BORROW/REPAY LOGIC
     //////////////////////////////////////////////////////////////*/
