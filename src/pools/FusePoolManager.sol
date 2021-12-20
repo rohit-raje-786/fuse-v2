@@ -121,11 +121,11 @@ contract FusePoolManager is Auth {
     /// @notice Maps users to an array of assets that they have currently lent/borrowed.
     /// @dev The FusePoolToken will automatically add to the list when assets are supplied/borrowed
     /// and removed when assets are returned (and the balance drops to zero).
-    mapping(address => FusePoolToken[]) public userAssets;
+    mapping(address => FusePoolToken[]) public userCollateral;
 
     /// @notice Maps users to a map indicating whether they have used the assets.
     /// @dev If this value is set to true, the asset is an element in the userAssets array.
-    mapping(address => mapping(FusePoolToken => bool)) public userUsedAssets;
+    mapping(address => mapping(FusePoolToken => bool)) public userUsedCollateral;
 
     /// @notice Emitted when a new asset is added for a certain user.
     /// @param user The address of the user.
@@ -137,6 +137,9 @@ contract FusePoolManager is Auth {
     /// If the asset is already in the user's list, this function will simply return.
     /// @param asset The address of the fToken representing the asset.
     function addAsset(FusePoolToken asset) external {
+        // Ensure that the caller is a verified fToken.
+        require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
+
         // Add the asset to the user's list of used assets.
         userUsedAssets[msg.sender][asset] = true;
         userAssets[msg.sender].push(asset);
@@ -164,6 +167,8 @@ contract FusePoolManager is Auth {
         userAssets[msg.sender][index] = userAssets[msg.sender][userAssets[msg.sender].length - 1];
         userAssets[msg.sender].pop();
     }
+
+    /// @dev Internal method to add a new asset to the user's list of assets.
 
     /*///////////////////////////////////////////////////////////////
                             BORROW/REPAY LOGIC
