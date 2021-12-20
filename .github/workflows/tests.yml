@@ -15,7 +15,10 @@ jobs:
           name: dapp
 
       - name: Install dependencies
-        run: nix-shell --run 'make'
+        run: | 
+        nix-shell --run 'make'
+        dapp install rari-capital/solmate
+        dapp install ds-test
 
       - name: Check gas snapshots
         run: nix-shell --run 'dapp check-snapshot'
