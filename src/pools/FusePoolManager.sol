@@ -64,6 +64,11 @@ contract FusePoolManager is Auth {
         uint256 borrowFactor;
     }
 
+    /// @notice Emitted when a new FusePoolToken is deployed.
+    /// @param deployer The address of the contract deployer.
+    /// @param token The address of the FusePoolToken that was deployed.
+    event NewFusePoolToken(address indexed deployer, FusePoolToken indexed token);
+
     /// @notice Deploy a new FusePoolToken
     /// @param token The address of the underlying ERC20 token.
     /// @param lendFactor Multiplier representing the value that one can borrow against their collateral.
@@ -87,6 +92,9 @@ contract FusePoolManager is Auth {
         poolTokens[token] = fusePoolToken;
         assets[fusePoolToken] = Asset({lendFactor: lendFactor, borrowFactor: borrowFactor});
         initialized[fusePoolToken] = true;
+
+        // Emit the NewFusePoolToken event.
+        emit NewFusePoolToken(msg.sender, fusePoolToken);
 
         // Return the address of the FusePoolToken.
         return fusePoolToken;
