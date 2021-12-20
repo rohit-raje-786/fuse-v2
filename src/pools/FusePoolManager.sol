@@ -130,7 +130,8 @@ contract FusePoolManager is Auth {
     /// @notice Emitted when a new asset is added for a certain user.
     /// @param user The address of the user.
     /// @param asset The address of the fToken representing the asset.
-    event NewAsset(address indexed user, FusePoolToken indexed asset);
+    // TODO: rename this
+    event NewUserCollateral(address indexed user, FusePoolToken indexed asset);
 
     /// @notice Add asset to the sender's list of used assets.
     /// If the asset is already in the user's list, this function will simply return.
@@ -144,7 +145,7 @@ contract FusePoolManager is Auth {
         userAssets[msg.sender].push(asset);
 
         // Emit the new asset event.
-        emit NewAsset(msg.sender, asset);
+        emit NewUserCollateral(msg.sender, asset);
     }
 
     /// @notice Remove asset from the sender's list of used assets.
@@ -185,7 +186,7 @@ contract FusePoolManager is Auth {
             userUsedAssets[user][FusePoolToken(msg.sender)] = true;
 
             // Emit the new asset event.
-            emit NewAsset(user, FusePoolToken(msg.sender));
+            emit NewUserCollateral(user, FusePoolToken(msg.sender));
         }
 
         // Ensure that the oracle is available.
