@@ -17,11 +17,8 @@ jobs:
       - name: Install dependencies
         run: nix-shell --run 'make'
 
-      - name: Install solmate
-        run: nix-shell --run 'dapp install ds-test'
-
-      - name: Install ds-test
-        run: nix-shell --run 'dapp install ds-test'
+      - name: Install libraries
+        run: nix-shell --run 'dapp update'
 
       - name: Check gas snapshots
         run: nix-shell --run 'dapp check-snapshot'
