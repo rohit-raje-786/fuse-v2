@@ -83,7 +83,7 @@ contract FusePoolManager is Auth {
         IRateModel rateModel,
         uint256 reserveRate,
         uint256 feeRate
-    ) external returns (FusePoolToken) {
+    ) external requiresAuth returns (FusePoolToken) {
         // Deploy a new FusePoolToken.
         FusePoolToken fusePoolToken = new FusePoolToken(token);
         fusePoolToken.initialize(rateModel, reserveRate, feeRate);
