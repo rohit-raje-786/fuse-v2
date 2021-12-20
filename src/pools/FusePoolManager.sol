@@ -3,6 +3,7 @@ pragma solidity 0.8.10;
 
 import {FusePoolToken} from "./FusePoolToken.sol";
 import {IRateModel} from "./interfaces/IRateModel.sol";
+import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 
 import {ERC20} from "lib/solmate/src/tokens/ERC20.sol";
 import {Auth, Authority} from "lib/solmate/src/Auth/Auth.sol";
@@ -92,6 +93,14 @@ contract FusePoolManager is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
+                             ORACLE STORAGE
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice The address of the oracle contract.
+    /// @dev If this value is not set, price-reliant methods will fail.
+    IPriceOracle public priceOracle;
+
+    /*///////////////////////////////////////////////////////////////
                             BORROW/REPAY LOGIC
     //////////////////////////////////////////////////////////////*/
 
@@ -119,7 +128,7 @@ contract FusePoolManager is Auth {
         }
 
         // Ensure that the oracle is available.
-        //require(oracle)
+        require(address(priceOracle) != address(0), "PRICE_ORACLE_NOT_SET");
     }
 
     /// @notice Execute a repayment request.
