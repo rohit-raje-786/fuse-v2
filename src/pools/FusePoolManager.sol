@@ -174,6 +174,8 @@ contract FusePoolManager is Auth {
     /// @param user The address of the user.
     /// @param asset The address of the fToken representing the asset.
     function addCollateral(address user, FusePoolToken asset) internal {
+        if (userEnabledCollateral[user][asset]) return;
+
         // Add the asset to the user's list of used assets.
         userEnabledCollateral[user][asset] = true;
         userCollateral[user].push(asset);
