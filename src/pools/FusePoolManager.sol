@@ -95,11 +95,32 @@ contract FusePoolManager is Auth {
                             BORROW/REPAY LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Maps users to an array of assets that they have currently lent/borrowed.
+    /// @dev The FusePoolToken will automatically add to the list when assets are supplied/borrowed
+    /// and removed when assets are returned (and the balance drops to zero).
+    mapping(address => FusePoolToken[]) public userAssets;
+
+    /// @notice Maps users to a map indicating whether they have used the assets.
+    /// @dev If this value is set to true, the asset is an element in the userAssets array.
+    mapping(address => mapping(FusePoolToken => bool)) public userUsedAssets;
+
     /// @notice Execute a borrow request.
     /// @param user The address of the borrower.
     /// @param amount The amount being borrowed.
     /// @dev Can only be called by a registered fToken.
-    function executeBorrow(address user, uint256 amount) external {}
+    function executeBorrow(address user, uint256 amount) external {
+        // Ensure the caller is a verified fToken.
+        require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
+
+        // Ensure the asset has been added to the user's list of used assets.
+        if (!userUsedAssets[user][FusePoolToken(msg.sender)]) {
+            userAssets[user].push(FusePoolToken(msg.sender));
+            userUsedAssets[user][FusePoolToken(msg.sender)] = true;
+        }
+
+        // Ensure that the oracle is available.
+        //require(oracle)
+    }
 
     /// @notice Execute a repayment request.
     /// @param user The address of the repayer.
