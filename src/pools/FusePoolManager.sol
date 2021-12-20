@@ -90,4 +90,30 @@ contract FusePoolManager is Auth {
         // Return the address of the FusePoolToken.
         return fusePoolToken;
     }
+
+    /*///////////////////////////////////////////////////////////////
+                            BORROW/REPAY LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Execute a borrow request.
+    /// @param poolToken The address of the FusePoolToken contract representing the underlying token.
+    /// @param user The address of the borrower.
+    /// @param amount The amount being borrowed.
+    /// @dev Can only be called by a registered fToken.
+    function executeBorrow(
+        FusePoolToken poolToken,
+        address user,
+        uint256 amount
+    ) external {}
+
+    /// @notice Execute a repayment request.
+    /// @param poolToken The address of the FusePoolToken contract representing the underlying token.
+    /// @param user The address of the repayer.
+    /// @param amount The amount being repaid.
+    /// @dev Can only be called by a registered fToken.
+    function executeRepay(
+        FusePoolToken poolToken,
+        address user,
+        uint256 amount
+    ) external {}
 }
