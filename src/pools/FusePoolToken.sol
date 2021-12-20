@@ -201,6 +201,23 @@ contract FusePoolToken is ERC20, Auth {
         UNDERLYING.safeTransferFrom(msg.sender, address(this), underlyingAmount);
     }
 
+    /// @notice Deposit a specific amount of underlying tokens as collateral
+    /// @param underlyingAmount The amount of underlying tokens withdrawn.
+    /// @dev Adds the asset to the user's asset list (stored in the FusePoolManager).
+    function lend(uint256 underlyingAmount) external {
+        // Ensure the amount is valid.
+        require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
+
+        // Mint fTokens to the user.
+        _mint(msg.sender, underlyingAmount.fdiv(exchangeRate(), BASE_UNIT));
+
+        // Transfer tokens from the user to the fToken contract.
+        UNDERLYING.safeTransferFrom(msg.sender, address(this), underlyingAmount);
+
+        // Add the asset to the user's asset list.
+        MANAGER.addAsset(this);
+    }
+
     /// @notice Withdraw a specific amount of underlying tokens.
     /// @param underlyingAmount The amount of underlying tokens withdrawn.
     function withdraw(uint256 underlyingAmount) external {
