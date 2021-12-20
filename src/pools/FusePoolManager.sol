@@ -132,6 +132,23 @@ contract FusePoolManager is Auth {
     /// @param asset The address of the fToken representing the asset.
     event NewAsset(address indexed user, FusePoolToken indexed asset);
 
+    /// @notice Add asset to a user's list of used assets.
+    /// If the asset is already in the user's list, this function will simply return.
+    /// @dev This method can only be called by an fToken contract.
+    /// @param user The address of the user.
+    /// @param asset The address of the fToken representing the asset.
+    function addAsset(address user, FusePoolToken asset) external {
+        // If the asset is already in the user's list, return.
+        if (userUsedAssets[user][asset]) return;
+
+        // Add the asset to the user's list of used assets.
+        userUsedAssets[user][asset] = true;
+        userAssets[user].push(asset);
+
+        // Emit the new asset event.
+        emit NewAsset(user, asset);
+    }
+
     /*///////////////////////////////////////////////////////////////
                             BORROW/REPAY LOGIC
     //////////////////////////////////////////////////////////////*/
