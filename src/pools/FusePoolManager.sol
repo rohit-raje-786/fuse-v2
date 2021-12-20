@@ -133,19 +133,21 @@ contract FusePoolManager is Auth {
     // TODO: rename this
     event NewUserCollateral(address indexed user, FusePoolToken indexed asset);
 
-    /// @notice Add asset to the sender's list of used assets.
-    /// If the asset is already in the user's list, this function will simply return.
-    /// @param asset The address of the fToken representing the asset.
-    function addAsset(FusePoolToken asset) external {
+    /// @notice Add asset to a user's list of used assets.
+    /// @param user The address of the user enabling the collateral.
+    /// @dev This function can only be called by a valid fToken contract.
+    function enableUserCollateral(address user) external {
         // Ensure that the caller is a verified fToken.
         require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
 
         // Add the asset to the user's list of used assets.
-        userEnabledCollateral[msg.sender][asset] = true;
-        userCollateral[msg.sender].push(asset);
+        addCollateral(user, FusePoolToken(msg.sender));
+    }
 
-        // Emit the new asset event.
-        emit NewUserCollateral(msg.sender, asset);
+    /// @notice Enable an asset as collateral for the sender.
+    /// @param asset The address of the fToken representing the underlying asset.
+    function enableCollateral(FusePoolToken asset) external {
+        addCollateral(msg.sender, asset);
     }
 
     /// @notice Remove asset from the sender's list of used assets.
@@ -171,7 +173,7 @@ contract FusePoolManager is Auth {
     /// @dev Internal method to add a new asset to the user's list of assets.
     /// @param user The address of the user.
     /// @param asset The address of the fToken representing the asset.
-    function enableUserCollateral(address user, FusePoolToken asset) internal {
+    function addCollateral(address user, FusePoolToken asset) internal {
         // Add the asset to the user's list of used assets.
         userEnabledCollateral[user][asset] = true;
         userCollateral[user].push(asset);
