@@ -124,8 +124,8 @@ contract FusePoolManager is Auth {
     mapping(address => FusePoolToken[]) public userCollateral;
 
     /// @notice Maps users to a map indicating whether they have used the assets.
-    /// @dev If this value is set to true, the asset is an element in the userAssets array.
-    mapping(address => mapping(FusePoolToken => bool)) public userUsedCollateral;
+    /// @dev If this value is set to true, the asset is an element in the userCollateral array.
+    mapping(address => mapping(FusePoolToken => bool)) public userEnabledCollateral;
 
     /// @notice Emitted when a new asset is added for a certain user.
     /// @param user The address of the user.
@@ -141,8 +141,8 @@ contract FusePoolManager is Auth {
         require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
 
         // Add the asset to the user's list of used assets.
-        userUsedAssets[msg.sender][asset] = true;
-        userAssets[msg.sender].push(asset);
+        userEnabledCollateral[msg.sender][asset] = true;
+        userCollateral[msg.sender].push(asset);
 
         // Emit the new asset event.
         emit NewUserCollateral(msg.sender, asset);
@@ -153,22 +153,32 @@ contract FusePoolManager is Auth {
     /// @dev If the asset is not in the user's list, this function will simply return.
     function removeAsset(FusePoolToken asset) external {
         // Remove the asset from the user's list of used assets.
-        userUsedAssets[msg.sender][asset] = false;
+        userEnabledCollateral[msg.sender][asset] = false;
 
         // Remove the asset from the user's usedAssets array.
         uint256 index = 0;
 
         // We need to iterate over the array to find the index of the asset.
-        for (; index < userAssets[msg.sender].length; index++) {
-            if (userAssets[msg.sender][index] == asset) break;
+        for (; index < userCollateral[msg.sender].length; index++) {
+            if (userCollateral[msg.sender][index] == asset) break;
         }
 
         // TODO: Optimizations :D
-        userAssets[msg.sender][index] = userAssets[msg.sender][userAssets[msg.sender].length - 1];
-        userAssets[msg.sender].pop();
+        userCollateral[msg.sender][index] = userCollateral[msg.sender][userCollateral[msg.sender].length - 1];
+        userCollateral[msg.sender].pop();
     }
 
     /// @dev Internal method to add a new asset to the user's list of assets.
+    /// @param user The address of the user.
+    /// @param asset The address of the fToken representing the asset.
+    function enableUserCollateral(address user, FusePoolToken asset) internal {
+        // Add the asset to the user's list of used assets.
+        userEnabledCollateral[user][asset] = true;
+        userCollateral[user].push(asset);
+
+        // Emit the new asset event.
+        emit NewUserCollateral(user, asset);
+    }
 
     /*///////////////////////////////////////////////////////////////
                             BORROW/REPAY LOGIC
@@ -183,9 +193,9 @@ contract FusePoolManager is Auth {
         require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
 
         // Ensure the asset has been added to the user's list of used assets.
-        if (!userUsedAssets[user][FusePoolToken(msg.sender)]) {
-            userAssets[user].push(FusePoolToken(msg.sender));
-            userUsedAssets[user][FusePoolToken(msg.sender)] = true;
+        if (!userEnabledCollateral[user][FusePoolToken(msg.sender)]) {
+            userCollateral[user].push(FusePoolToken(msg.sender));
+            userEnabledCollateral[user][FusePoolToken(msg.sender)] = true;
 
             // Emit the new asset event.
             emit NewUserCollateral(user, FusePoolToken(msg.sender));
