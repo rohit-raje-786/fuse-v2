@@ -239,48 +239,42 @@ contract FusePoolToken is ERC20, Auth {
 
     /// @notice Emitted after a successful borrow.
     /// @param user The user who borrowed the underlying asset.
-    /// @param asset The address of the fToken holding the borrowed asset.
     /// @param amount The amount of underlying tokens borrowed.
-    event Borrow(address indexed user, FusePoolToken indexed asset, uint256 amount);
+    event Borrow(address indexed user, uint256 amount);
 
     /// @notice Emitted after a successful repayment
     /// @param user The user who repaid the underlying asset.
-    /// @param asset The address of the fToken holding the repaid asset.
     /// @param amount The amount of underlying tokens repaid.
-    event Repay(address indexed user, FusePoolToken indexed asset, uint256 amount);
+    event Repay(address indexed user, uint256 amount);
 
     /// @notice Borrow a specific amount of underlying tokens.
-    /// @param poolToken The address of the FusePoolToken contract
     /// that holds the underlying asset to be borrowed.
     /// @param amount The amount of underlying tokens to borrow.
-    function borrow(FusePoolToken poolToken, uint256 amount) external {
+    function borrow(uint256 amount) external {
         // Ensure the inputted values are valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
-        require(address(poolToken) != address(0), "POOL_TOKEN_NOT_VALID");
 
         // Facilitate a borrow through the manager.
         // This call will fail if the borrower does not have enough collateral
         // MANAGER.borrow(msg.sender, amount, balanceOf(msg.sender));
 
         // Emit the event.
-        emit Borrow(msg.sender, poolToken, amount);
+        emit Borrow(msg.sender, amount);
     }
 
     /// @notice Repay a specific amount of underlying tokens.
-    /// @param poolToken The address of the FusePoolToken contract
     /// that holds the underlying asset to be repaid.
     /// @param amount The amount of underlying tokens to repay.
-    function repay(FusePoolToken poolToken, uint256 amount) public {
+    function repay(uint256 amount) public {
         // Ensure the inputted values are valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
-        require(address(poolToken) != address(0), "POOL_TOKEN_NOT_VALID");
 
         // Facilitate a repayment through the manager.
         // This call will fail if the borrower does not have enough collateral
         // MANAGER.repay(msg.sender, amount, balanceOf(msg.sender));
 
         // Emit the event.
-        emit Repay(msg.sender, poolToken, amount);
+        emit Repay(msg.sender, amount);
     }
 
     /*///////////////////////////////////////////////////////////////
