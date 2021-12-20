@@ -115,7 +115,7 @@ contract FusePoolManager is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
-                            BORROW/REPAY LOGIC
+                            USER ASSET LOGIC
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Maps users to an array of assets that they have currently lent/borrowed.
@@ -126,6 +126,15 @@ contract FusePoolManager is Auth {
     /// @notice Maps users to a map indicating whether they have used the assets.
     /// @dev If this value is set to true, the asset is an element in the userAssets array.
     mapping(address => mapping(FusePoolToken => bool)) public userUsedAssets;
+
+    /// @notice Emitted when a new asset is added for a certain user.
+    /// @param user The address of the user.
+    /// @param asset The address of the fToken representing the asset.
+    event NewAsset(address indexed user, FusePoolToken indexed asset);
+
+    /*///////////////////////////////////////////////////////////////
+                            BORROW/REPAY LOGIC
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Execute a borrow request.
     /// @param user The address of the borrower.
