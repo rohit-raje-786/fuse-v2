@@ -141,6 +141,9 @@ contract FusePoolManager is Auth {
         // If the asset is already in the user's list, return.
         if (userUsedAssets[user][asset]) return;
 
+        // Ensure that the caller is a verified fToken.
+        require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
+
         // Add the asset to the user's list of used assets.
         userUsedAssets[user][asset] = true;
         userAssets[user].push(asset);
@@ -158,7 +161,7 @@ contract FusePoolManager is Auth {
     /// @param amount The amount being borrowed.
     /// @dev Can only be called by a registered fToken.
     function executeBorrow(address user, uint256 amount) external {
-        // Ensure the caller is a verified fToken.
+        // Ensure that the caller is a verified fToken.
         require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
 
         // Ensure the asset has been added to the user's list of used assets.
