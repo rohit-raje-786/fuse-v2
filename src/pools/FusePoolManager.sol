@@ -132,7 +132,7 @@ contract FusePoolManager is Auth {
     /// @param asset The address of the fToken representing the asset.
     event NewAsset(address indexed user, FusePoolToken indexed asset);
 
-    /// @notice Add asset to a user's list of used assets.
+    /// @notice Add asset to the sender's list of used assets.
     /// If the asset is already in the user's list, this function will simply return.
     /// @param asset The address of the fToken representing the asset.
     function addAsset(FusePoolToken asset) external {
@@ -147,7 +147,7 @@ contract FusePoolManager is Auth {
         emit NewAsset(msg.sender, asset);
     }
 
-    /// @notice Remove asset from a user's list of used assets.
+    /// @notice Remove asset from the sender's list of used assets.
     /// @param asset The address of the fToken representing the asset being removed.
     /// @dev If the asset is not in the user's list, this function will simply return.
     function removeAsset(FusePoolToken asset) external {
