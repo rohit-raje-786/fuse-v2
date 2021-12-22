@@ -162,11 +162,16 @@ contract FusePoolManager is Auth {
     /// @param asset The address of the fToken representing the asset being removed.
     /// @dev If the asset is not in the user's list, this function will simply return.
     function removeAsset(FusePoolToken asset) external {
+        // Ensure that the asset is not being borrowed. If a user removes an
+        // asset that is being borrowed from their array, they're borrow balance for that asset
+        // will not be accounted for..
+        require(asset.borrowBalance(msg.sender) == 0, "ASSET_IS_BEING_BORROWED");
+
         // Remove the asset from the user's list of used assets.
         userEnabledCollateral[msg.sender][asset] = false;
 
         // Remove the asset from the user's usedAssets array.
-        uint256 index = 0;
+        uint256 index;
 
         // TODO: Gas optimizations
         // We need to iterate over the array to find the index of the asset.
