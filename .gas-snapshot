@@ -1,3 +1,4 @@
-testAtomicDeposit() (gas: 147695)
-testAtomicRedeem() (gas: 175550)
-testAtomicWithdrawal() (gas: 178436)
+testAtomicDeposit() (gas: 147783)
+testAtomicRedeem() (gas: 175639)
+testAtomicWithdrawal() (gas: 178535)
+testAtomicBorrow() (gas: 172412)
