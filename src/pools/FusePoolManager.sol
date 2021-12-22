@@ -222,4 +222,42 @@ contract FusePoolManager is Auth {
     /// @param amount The amount being repaid.
     /// @dev Can only be called by a registered fToken.
     function executeRepay(address user, uint256 amount) external {}
+
+    /*///////////////////////////////////////////////////////////////
+                   HYPOTHETICAL LIQUIDITY CALCULATIONS
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Calculate a user's liquidity after a borrow or repayment.
+    /// @param user The address of the user.
+    /// @param token The address of the fToken representing the asset.
+    /// @param borrowAmount The amount being borrowed.
+    /// @param repayAmount The amount being repaid.
+    /// @return The user's hypothetical liquidity.
+    function getUserLiquidityAfterBorrow(
+        address user,
+        FusePoolToken token,
+        uint256 borrowAmount,
+        uint256 repayAmount
+    ) internal returns (uint256) {
+        // Store the user's supplied assets in memory.
+        FusePoolToken[] memory suppliedAssets = userCollateral[user];
+
+        // Represents the user's total borrowable balance in ETH.
+        // This only takes in the value of the user's collateral.
+        uint256 borrowableBalance;
+
+        // Iterate over the user's supplied assets.
+        for (uint256 i = 0; i < suppliedAssets.length; i++) {
+            // Store the asset in memory.
+            FusePoolToken asset = suppliedAssets[i];
+
+            // Retrieve user's underlying balance and multiply it by the asset's lend factor
+            // to calculate the amount of underlying that can be borrowed against.
+            uint256 borrowable = (asset.balanceOfUnderlying(user) * assets[asset].lendFactor) / 1e18;
+
+            // Convert the borrowable value to ETH and add it to the borrowable balance.
+            // This is done by multiplying the borrowable value by the asset's underlying price.
+            borrowableBalance += (borrowable * priceOracle.getPrice(asset)) / asset.BASE_UNIT();
+        }
+    }
 }
