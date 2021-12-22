@@ -168,6 +168,7 @@ contract FusePoolManager is Auth {
         // Remove the asset from the user's usedAssets array.
         uint256 index = 0;
 
+        // TODO: Gas optimizations
         // We need to iterate over the array to find the index of the asset.
         for (; index < userCollateral[msg.sender].length; index++) {
             if (userCollateral[msg.sender][index] == asset) break;
