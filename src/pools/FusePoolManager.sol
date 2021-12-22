@@ -7,12 +7,15 @@ import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 
 import {ERC20} from "lib/solmate/src/tokens/ERC20.sol";
 import {Auth, Authority} from "lib/solmate/src/Auth/Auth.sol";
+import {FixedPointMathLib} from "lib/solmate/src/utils/FixedPointMathLib.sol";
 
 /// @title Fuse Pool Manager
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice This contract serves as the risk management layer for the Fuse Pool
 /// and is directly responsible for managing assets, user positions, and liquidations.
 contract FusePoolManager is Auth {
+    using FixedPointMathLib for uint256;
+
     /*///////////////////////////////////////////////////////////////
                             METADATA STORAGE
     //////////////////////////////////////////////////////////////*/
@@ -259,11 +262,11 @@ contract FusePoolManager is Auth {
 
             // Retrieve user's underlying balance and multiply it by the asset's lend factor
             // to calculate the amount of underlying that can be borrowed against.
-            uint256 borrowable = (asset.balanceOfUnderlying(user) * assets[asset].lendFactor) / 1e18;
+            uint256 borrowable = asset.balanceOfUnderlying(user).fmul(assets[asset].lendFactor, 1e18);
 
             // Convert the borrowable value to ETH and add it to the borrowable balance.
             // This is done by multiplying the borrowable value by the asset's underlying price.
-            borrowableBalance += (borrowable * priceOracle.getPrice(asset)) / asset.BASE_UNIT();
+            borrowableBalance += borrowable.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
         }
     }
 }
