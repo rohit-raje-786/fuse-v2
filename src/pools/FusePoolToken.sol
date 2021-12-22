@@ -270,6 +270,9 @@ contract FusePoolToken is ERC20, Auth {
         // Ensure the inputted values are valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
 
+        // Add to the borrow balance of the user.
+        borrowBalanceOf[msg.sender] += amount;
+
         // Facilitate a borrow through the manager.
         // This call will fail if the borrower does not have enough collateral
         // MANAGER.borrow(msg.sender, amount, balanceOf(msg.sender));
@@ -284,6 +287,9 @@ contract FusePoolToken is ERC20, Auth {
     function repay(uint256 amount) public {
         // Ensure the inputted values are valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
+
+        // Subtract from the borrow balance of the user.
+        borrowBalanceOf[msg.sender] -= amount;
 
         // Facilitate a repayment through the manager.
         // This call will fail if the borrower does not have enough collateral
