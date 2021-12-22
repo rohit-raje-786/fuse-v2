@@ -1,3 +1,5 @@
+pragma solidity 0.8.10;
+
 import {FusePoolToken} from "../../pools/FusePoolToken.sol";
 import {IPriceOracle} from "../../pools/interfaces/IPriceOracle.sol";
 
