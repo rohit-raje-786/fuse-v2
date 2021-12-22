@@ -248,6 +248,11 @@ contract FusePoolToken is ERC20, Auth {
                             BORROW/REPAY LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Maps addresses to the amount of fTokens borrowed.
+    /// TODO: This value will change every block, use an exchange rate
+    /// value to determine the total amount of tokens borrowed.
+    mapping(address => uint256) borrowBalanceOf;
+
     /// @notice Emitted after a successful borrow.
     /// @param user The user who borrowed the underlying asset.
     /// @param amount The amount of underlying tokens borrowed.
@@ -320,6 +325,6 @@ contract FusePoolToken is ERC20, Auth {
     /// @notice Get the borrow balance of an account.
     /// @param account The account to get the borrow balance of.
     function borrowBalance(address account) external view returns (uint256) {
-        //return borrowBalanceOf[account];
+        return borrowBalanceOf[account];
     }
 }
