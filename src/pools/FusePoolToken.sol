@@ -316,4 +316,10 @@ contract FusePoolToken is ERC20, Auth {
     function balanceOfUnderlying(address account) public view returns (uint256) {
         return balanceOf[account].fmul(exchangeRate(), BASE_UNIT);
     }
+
+    /// @notice Get the borrow balance of an account.
+    /// @param account The account to get the borrow balance of.
+    function borrowBalance(address account) external view returns (uint256) {
+        //return borrowBalanceOf[account];
+    }
 }
