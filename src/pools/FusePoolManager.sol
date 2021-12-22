@@ -255,6 +255,10 @@ contract FusePoolManager is Auth {
         // This only takes in the value of the user's collateral.
         uint256 borrowableBalance;
 
+        // Represents the user's already-borrowed balance in ETH.
+        uint256 borrowBalance;
+
+        // TODO: Gas optimizations
         // Iterate over the user's supplied assets.
         for (uint256 i = 0; i < enteredAssets.length; i++) {
             // Store the asset in memory.
@@ -267,6 +271,18 @@ contract FusePoolManager is Auth {
             // Convert the borrowable value to ETH and add it to the borrowable balance.
             // This is done by multiplying the borrowable value by the asset's underlying price.
             borrowableBalance += borrowable.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
+
+            // Convert the user's borrow balance to ETH and add it to the borrowable balance.
+            borrowBalance += asset.borrowBalance(user).fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
+
+            // Add/subtract the borrow/repay amounts to/from the borrow balance.
+            if (asset == token) {
+                // Add the borrow amount to the user's borrow balance.
+                borrowBalance += borrowAmount.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
+
+                // Subtract the repay amount from the user's borrow balance.
+                borrowBalance -= repayAmount.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
+            }
         }
     }
 }
