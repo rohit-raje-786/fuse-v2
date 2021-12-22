@@ -239,17 +239,17 @@ contract FusePoolManager is Auth {
         uint256 borrowAmount,
         uint256 repayAmount
     ) internal returns (uint256) {
-        // Store the user's supplied assets in memory.
-        FusePoolToken[] memory suppliedAssets = userCollateral[user];
+        // Store the user's supplied and borrowed assets in memory.
+        FusePoolToken[] memory enteredAssets = userCollateral[user];
 
         // Represents the user's total borrowable balance in ETH.
         // This only takes in the value of the user's collateral.
         uint256 borrowableBalance;
 
         // Iterate over the user's supplied assets.
-        for (uint256 i = 0; i < suppliedAssets.length; i++) {
+        for (uint256 i = 0; i < enteredAssets.length; i++) {
             // Store the asset in memory.
-            FusePoolToken asset = suppliedAssets[i];
+            FusePoolToken asset = enteredAssets[i];
 
             // Retrieve user's underlying balance and multiply it by the asset's lend factor
             // to calculate the amount of underlying that can be borrowed against.
