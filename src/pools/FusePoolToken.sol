@@ -62,7 +62,7 @@ contract FusePoolToken is ERC20, Auth {
 
     /// @notice Initialize the fToken.
     /// @dev This method does not require auth as it should
-    /// be called in the same call as the constructor.
+    /// be called in the same call transaction as the constructor.
     function initialize(
         IRateModel _rateModel,
         uint256 _reserveRate,
@@ -209,7 +209,7 @@ contract FusePoolToken is ERC20, Auth {
         deposit(underlyingAmount);
 
         // Add the asset to the user's asset list.
-        MANAGER.addAsset(this);
+        MANAGER.enableUserCollateral(msg.sender);
     }
 
     /// @notice Withdraw a specific amount of underlying tokens.
