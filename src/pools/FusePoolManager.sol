@@ -264,6 +264,8 @@ contract FusePoolManager is Auth {
             // Store the asset in memory.
             FusePoolToken asset = enteredAssets[i];
 
+            //TODO: store underlying price in memory
+
             // Retrieve user's underlying balance and multiply it by the asset's lend factor
             // to calculate the amount of underlying that can be borrowed against.
             uint256 borrowable = asset.balanceOfUnderlying(user).fmul(assets[asset].lendFactor, 1e18);
