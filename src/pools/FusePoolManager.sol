@@ -236,18 +236,18 @@ contract FusePoolManager is Auth {
                    HYPOTHETICAL LIQUIDITY CALCULATIONS
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Calculate a user's liquidity after a borrow or repayment.
+    /// @notice Identify whether a borrow/repayment can occur.
     /// @param user The address of the user.
     /// @param token The address of the fToken representing the asset.
     /// @param borrowAmount The amount being borrowed.
     /// @param repayAmount The amount being repaid.
     /// @return The user's hypothetical liquidity.
-    function getUserLiquidityAfterBorrow(
+    function borrowAllowed(
         address user,
         FusePoolToken token,
         uint256 borrowAmount,
         uint256 repayAmount
-    ) internal view returns (uint256) {
+    ) internal view returns (bool, uint256) {
         // Store the user's supplied and borrowed assets in memory.
         FusePoolToken[] memory enteredAssets = userCollateral[user];
 
