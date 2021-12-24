@@ -67,7 +67,7 @@ contract FusePoolTokenTest is DSTestPlus {
     function testAtomicBorrow() public {
         uint256 amount = 1e18;
         testAtomicDeposit();
-        fuseToken.borrow(amount / 5);
+        fuseToken.borrow(amount);
     }
 
     function testAtomicRepay() public {
