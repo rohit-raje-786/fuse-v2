@@ -247,7 +247,7 @@ contract FusePoolManager is Auth {
         FusePoolToken token,
         uint256 borrowAmount,
         uint256 repayAmount
-    ) internal returns (uint256) {
+    ) internal view returns (uint256) {
         // Store the user's supplied and borrowed assets in memory.
         FusePoolToken[] memory enteredAssets = userCollateral[user];
 
