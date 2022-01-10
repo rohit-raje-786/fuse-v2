@@ -247,5 +247,23 @@ contract FusePoolManager is Auth {
         FusePoolToken token,
         uint256 borrowAmount,
         uint256 repayAmount
-    ) internal view returns (bool, uint256) {}
+    ) internal view returns (bool, uint256) {
+        // Get a list of the user's entered assets.
+        FusePoolToken[] memory userAssets = userCollateral[user];
+
+        // The user's total borrow balance.
+        uint256 borrowBalance;
+
+        // The user's lend-based borrowable balance. This is the
+        // amount that the user can borrow based on the lend factor
+        // of the assets they have entered.
+        // We calculate this value for each asset by doing `suppliedBalance * asset.lendFactor`
+        uint256 lendBorrowableBalance;
+
+        // The user's borrow-based borrowable balance. This is the
+        // amount that a user can borrow based on the borrow factor
+        // of the assets they are currently borrowing. This value will
+        // also take in the `borrowAmount` and `repayAmount` parameters
+        uint256 borrowBorrowableBalance;
+    }
 }
