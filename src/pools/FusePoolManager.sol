@@ -247,58 +247,5 @@ contract FusePoolManager is Auth {
         FusePoolToken token,
         uint256 borrowAmount,
         uint256 repayAmount
-    ) internal view returns (bool, uint256) {
-        // Store the user's supplied and borrowed assets in memory.
-        FusePoolToken[] memory enteredAssets = userCollateral[user];
-
-        // Represents the user's already-borrowed balance in ETH.
-        uint256 borrowBalance;
-
-        // Represents the user's total borrowable balance in ETH.
-        // This only takes in the value of the user's collateral.
-        uint256 borrowableBalance;
-
-        // Represents the borrow factor an asset multipied by the borrow balance for that asset.
-        // This will be used to calculate the user's average borrow factor.
-        uint256 borrowSideAllowance;
-
-        // TODO: Gas optimizations
-        // Iterate over the user's supplied assets.
-        for (uint256 i = 0; i < enteredAssets.length; i++) {
-            // Store the asset in memory.
-            FusePoolToken asset = enteredAssets[i];
-
-            //TODO: store underlying price in memory
-
-            // Retrieve user's underlying balance and multiply it by the asset's lend factor
-            // to calculate the amount of underlying that can be borrowed against.
-            uint256 borrowable = asset.balanceOfUnderlying(user).fmul(assets[asset].lendFactor, 1e18);
-
-            // Convert the borrowable value to ETH and add it to the borrowable balance.
-            // This is done by multiplying the borrowable value by the asset's underlying price.
-            borrowableBalance += borrowable.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
-
-            // Convert the user's borrow balance to ETH.
-            uint256 assetBorrowBalance = asset.borrowBalance(user).fmul(
-                priceOracle.getUnderlyingPrice(asset),
-                asset.BASE_UNIT()
-            );
-
-            // Add the asset borrow balance to the total borrow balance.
-            borrowBalance += assetBorrowBalance;
-
-            // Add the (borrow balance * borrow factor) to the borrow factor.
-            // TODO: Also calculate this for the token.
-            borrowSideAllowance += asset.borrowBalance(user).fmul(assets[asset].borrowFactor, 1e18);
-
-            // Add/subtract the borrow/repay amounts to/from the borrow balance.
-            if (asset == token) {
-                // Add the borrow amount to the user's borrow balance.
-                borrowBalance += borrowAmount.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
-
-                // Subtract the repay amount from the user's borrow balance.
-                borrowBalance -= repayAmount.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
-            }
-        }
-    }
+    ) internal view returns (bool, uint256) {}
 }
