@@ -265,5 +265,29 @@ contract FusePoolManager is Auth {
         // of the assets they are currently borrowing. This value will
         // also take in the `borrowAmount` and `repayAmount` parameters
         uint256 borrowBorrowableBalance;
+
+        // Iterate over the user's entered assets.
+        for (uint256 i; i < userAssets.length; i++) {
+            // Get the asset
+            FusePoolToken asset = userAssets[i];
+
+            // Calculate the amount of the asset that the user is borrowing in ETH.
+            uint256 borrowing = (
+                token == asset ? asset.borrowBalance(user) + borrowAmount - repayAmount : asset.borrowBalance(user)
+            ).fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
+
+            // Add the borrow amount in ETH to the user's total borrow balance.
+            borrowBalance += borrowing;
+
+            // Get the user's lend-side borrowable value in ETH.
+            // We calculate this value by multiplying the user's supplied balance (in ETH)
+            // and multiply it by the lend factor of the asset.
+            lendBorrowableBalance += asset.balanceOfUnderlying(user).fmul(assets[asset].lendFactor, 1e18);
+
+            // Store the user's borrow-side borrowable balance for this asset.
+            // We calculate this by multiplying the user's borrowed balance
+            // by the asset's borrow factor.
+            borrowBorrowableBalance += borrowing.fmul(assets[asset].borrowFactor, 1e18);
+        }
     }
 }
