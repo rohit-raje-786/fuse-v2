@@ -179,14 +179,16 @@ contract FusePoolToken is ERC20, Auth {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted after a successful deposit.
-    /// @param user The user who deposited.
+    /// @param from The address that triggered the deposit.
+    /// @param to The user who recieves the minted fTokens.
     /// @param amount The amount of underlying tokens deposited.
-    event Deposit(address indexed user, uint256 amount);
+    event Deposit(address indexed from, address indexed to, uint256 amount);
 
     /// @notice Emitted after a successful withdrawal.
-    /// @param user The user who withdrew.
-    /// @param amount The amount of underlying tokens withdrew.
-    event Withdrawal(address indexed user, uint256 amount);
+    /// @param from The address whose fTokens are burnt.
+    /// @param to The address that recieves the underlying.
+    /// @param amount The amount of underlying tokens withdrawn.
+    event Withdraw(address indexed from, address indexed to, uint256 amount);
 
     /// @notice Deposit a specific amount of underlying tokens.
     /// @param underlyingAmount The amount of underlying tokens to be deposited.
