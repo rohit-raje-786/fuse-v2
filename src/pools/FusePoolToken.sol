@@ -268,21 +268,20 @@ contract FusePoolToken is ERC20, Auth {
     }
 
     /// @notice Redeem a specific amount of fTokens for underlying tokens.
-    /// @param fTokenAmount The amount of fTokens redeemed.
-    function redeem(uint256 fTokenAmount) external {
+    /// @param shares The amount of fTokens redeemed.
+    function redeem(uint256 shares) external returns (uint256 value) {
         // Ensure the amount is valid.
-        require(fTokenAmount != 0, "AMOUNT_TOO_LOW");
+        require(shares != 0, "AMOUNT_TOO_LOW");
 
-        // Determine the equivalent amount of underlying tokens.
-        // TODO: Add exchangeRate calculation.
-        uint256 underlyingAmount = fTokenAmount;
+        // Calculate the underlying amount to be withdrawn.
+        value = shares.fmul(exchangeRate(), BASE_UNIT);
 
         // Burn fTokens the equivalent amount of fTokens.
         // This code will fail if the user does not have enough fTokens.
-        _burn(msg.sender, fTokenAmount.fmul(exchangeRate(), BASE_UNIT));
+        _burn(msg.sender, shares);
 
         // Transfer tokens from the fToken contract to the user.
-        UNDERLYING.safeTransfer(msg.sender, underlyingAmount);
+        UNDERLYING.safeTransfer(msg.sender, value);
     }
 
     /*///////////////////////////////////////////////////////////////
