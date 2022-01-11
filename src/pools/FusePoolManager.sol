@@ -213,6 +213,10 @@ contract FusePoolManager is Auth {
         // Ensure that the caller is a verified fToken.
         require(initialized[FusePoolToken(msg.sender)], "CALLER_MUST_BE_FTOKEN");
 
+        // Ensure that the oracle is available.
+        require(address(priceOracle) != address(0), "PRICE_ORACLE_NOT_SET");
+
+        // TODO: Make this a function
         // Ensure the asset has been added to the user's list of used assets.
         if (!userEnabledCollateral[user][FusePoolToken(msg.sender)]) {
             userCollateral[user].push(FusePoolToken(msg.sender));
@@ -222,8 +226,12 @@ contract FusePoolManager is Auth {
             emit NewUserCollateral(user, FusePoolToken(msg.sender));
         }
 
-        // Ensure that the oracle is available.
-        require(address(priceOracle) != address(0), "PRICE_ORACLE_NOT_SET");
+        // Ensure the borrow can occur.
+        (bool allowed, ) = borrowAllowed(user, FusePoolToken(msg.sender), amount, 0);
+        require(allowed, "BORROW_NOT_ALLOWED");
+
+        // Directly transfer tokens from the fToken to the user.
+        FusePoolToken(msg.sender).UNDERLYING().transferFrom(msg.sender, user, amount);
     }
 
     /// @notice Execute a repayment request.
