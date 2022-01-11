@@ -189,13 +189,17 @@ contract FusePoolToken is ERC20, Auth {
     event Withdrawal(address indexed user, uint256 amount);
 
     /// @notice Deposit a specific amount of underlying tokens.
-    /// @param underlyingAmount The amount of underlying tokens withdrawn.
-    function deposit(uint256 underlyingAmount) public {
+    /// @param underlyingAmount The amount of underlying tokens to be deposited.
+    /// @return shares The amount of fTokens minted to the user.
+    function deposit(address to, uint256 underlyingAmount) public returns (uint256 shares) {
         // Ensure the amount is valid.
         require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
 
+        // Calculate shares to be minted.
+        shares = underlyingAmount.fdiv(exchangeRate(), BASE_UNIT);
+
         // Mint fTokens to the user.
-        _mint(msg.sender, underlyingAmount.fdiv(exchangeRate(), BASE_UNIT));
+        _mint(to, shares);
 
         // Transfer tokens from the user to the fToken contract.
         UNDERLYING.safeTransferFrom(msg.sender, address(this), underlyingAmount);
@@ -203,14 +207,19 @@ contract FusePoolToken is ERC20, Auth {
 
     /// @notice Deposit a specific amount of underlying tokens as collateral
     /// @param underlyingAmount The amount of underlying tokens withdrawn.
-    /// @dev Adds the asset to the user's asset list (stored in the FusePoolManager).
-    function lend(uint256 underlyingAmount) external {
+    /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
+    function lend(address to, uint256 underlyingAmount) external returns (uint256 shares) {
         // Transfer underlying tokens to the contract and mint fTokens to the user.
-        deposit(underlyingAmount);
+        shares = deposit(to, underlyingAmount);
 
         // Add the asset to the user's asset list.
         MANAGER.enableUserCollateral(msg.sender);
     }
+
+    /// @notice Deposit a specific amount of underlying tokens as collateral
+    /// @param underlyingAmount The amount of underlying tokens withdrawn.
+    /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
+    function mint(address to, uint256 underlyingAmount) external returns (uint256 value) {}
 
     /// @notice Withdraw a specific amount of underlying tokens.
     /// @param underlyingAmount The amount of underlying tokens withdrawn.
