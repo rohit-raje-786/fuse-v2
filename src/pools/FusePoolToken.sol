@@ -195,7 +195,7 @@ contract FusePoolToken is ERC20, Auth {
     /// @return shares The amount of fTokens minted to the user.
     function deposit(address to, uint256 underlyingAmount) public returns (uint256 shares) {
         // Ensure the amount is valid.
-        require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
+        require(underlyingAmount != 0, "AMOUNT_TOO_LOW");
 
         // Calculate shares to be minted.
         shares = underlyingAmount.fdiv(exchangeRate(), BASE_UNIT);
@@ -226,7 +226,7 @@ contract FusePoolToken is ERC20, Auth {
     /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
     function mint(address to, uint256 shares) external returns (uint256 value) {
         // Ensure the amount is valid.
-        require(shares > 0, "AMOUNT_TOO_LOW");
+        require(shares != 0, "AMOUNT_TOO_LOW");
 
         // Calculate the underlying amount to be deposited.
         value = shares.fmul(exchangeRate(), BASE_UNIT);
@@ -249,7 +249,7 @@ contract FusePoolToken is ERC20, Auth {
         uint256 underlyingAmount
     ) external {
         // Ensure the amount is valid.
-        require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
+        require(underlyingAmount != 0, "AMOUNT_TOO_LOW");
 
         // Burn fTokens the equivalent amount of fTokens.
         // This code will fail if the user does not have enough fTokens.
@@ -266,7 +266,7 @@ contract FusePoolToken is ERC20, Auth {
     /// @param fTokenAmount The amount of fTokens redeemed.
     function redeem(uint256 fTokenAmount) external {
         // Ensure the amount is valid.
-        require(fTokenAmount > 0, "AMOUNT_TOO_LOW");
+        require(fTokenAmount != 0, "AMOUNT_TOO_LOW");
 
         // Determine the equivalent amount of underlying tokens.
         // TODO: Add exchangeRate calculation.
@@ -304,7 +304,7 @@ contract FusePoolToken is ERC20, Auth {
     /// @param amount The amount of underlying tokens to borrow.
     function borrow(uint256 amount) external {
         // Ensure the inputted values are valid.
-        require(amount > 0, "AMOUNT_TOO_LOW");
+        require(amount != 0, "AMOUNT_TOO_LOW");
 
         // Add to the borrow balance of the user.
         borrowBalanceOf[msg.sender] += amount;
@@ -322,7 +322,7 @@ contract FusePoolToken is ERC20, Auth {
     /// @param amount The amount of underlying tokens to repay.
     function repay(uint256 amount) public {
         // Ensure the inputted values are valid.
-        require(amount > 0, "AMOUNT_TOO_LOW");
+        require(amount != 0, "AMOUNT_TOO_LOW");
 
         // Subtract from the borrow balance of the user.
         borrowBalanceOf[msg.sender] -= amount;
