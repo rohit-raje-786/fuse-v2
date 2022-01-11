@@ -191,6 +191,7 @@ contract FusePoolToken is ERC20, Auth {
     event Withdraw(address indexed from, address indexed to, uint256 amount);
 
     /// @notice Deposit a specific amount of underlying tokens.
+    /// @param to The address to mint fTokens to.
     /// @param underlyingAmount The amount of underlying tokens to be deposited.
     /// @return shares The amount of fTokens minted to the user.
     function deposit(address to, uint256 underlyingAmount) public returns (uint256 shares) {
@@ -211,17 +212,7 @@ contract FusePoolToken is ERC20, Auth {
     }
 
     /// @notice Deposit a specific amount of underlying tokens as collateral
-    /// @param underlyingAmount The amount of underlying tokens withdrawn.
-    /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
-    function lend(address to, uint256 underlyingAmount) external returns (uint256 shares) {
-        // Transfer underlying tokens to the contract and mint fTokens to the user.
-        shares = deposit(to, underlyingAmount);
-
-        // Add the asset to the user's asset list.
-        MANAGER.enableUserCollateral(msg.sender);
-    }
-
-    /// @notice Deposit a specific amount of underlying tokens as collateral
+    /// @param to The address to mint fTokens to.
     /// @param shares The amount of fTokens to be minted.
     /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
     function mint(address to, uint256 shares) external returns (uint256 value) {
@@ -241,7 +232,21 @@ contract FusePoolToken is ERC20, Auth {
         UNDERLYING.safeTransferFrom(msg.sender, address(this), value);
     }
 
+    /// @notice Deposit a specific amount of underlying tokens as collateral.
+    /// @param to The address to mint fTokens to.
+    /// @param underlyingAmount The amount of underlying tokens withdrawn.
+    /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
+    function lend(address to, uint256 underlyingAmount) external returns (uint256 shares) {
+        // Transfer underlying tokens to the contract and mint fTokens to the user.
+        shares = deposit(to, underlyingAmount);
+
+        // Add the asset to the user's asset list.
+        MANAGER.enableUserCollateral(msg.sender);
+    }
+
     /// @notice Withdraw a specific amount of underlying tokens.
+    /// @param from The address to withdraw fTokens from.
+    /// @param to The address to send the underlying tokens to.
     /// @param underlyingAmount The amount of underlying tokens withdrawn.
     function withdraw(
         address from,
