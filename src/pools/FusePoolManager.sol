@@ -282,9 +282,17 @@ contract FusePoolManager is Auth {
             FusePoolToken asset = userAssets[i];
 
             // Calculate the amount of the asset that the user is borrowing in ETH.
-            uint256 borrowing = (
-                token == asset ? asset.borrowBalance(user) + borrowAmount - repayAmount : asset.borrowBalance(user)
-            ).fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
+            uint256 borrowAmountInAsset = asset.borrowBalance(user);
+
+            // If the asset is the fToken being borrowed/repayed, we need to add
+            // the borrowAmount and repayAmount to the borrowAmountInAsset.
+            if (asset == token) {
+                borrowAmountInAsset += borrowAmount;
+                borrowAmount -= repayAmount;
+            }
+
+            // Calculate the borrow balance in ETH
+            uint256 borrowing = borrowAmountInAsset.fmul(priceOracle.getUnderlyingPrice(asset), asset.BASE_UNIT());
 
             // Add the borrow amount in ETH to the user's total borrow balance.
             borrowBalance += borrowing;
