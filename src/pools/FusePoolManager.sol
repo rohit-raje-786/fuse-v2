@@ -230,6 +230,8 @@ contract FusePoolManager is Auth {
         (bool allowed, ) = borrowAllowed(user, FusePoolToken(msg.sender), amount, 0);
         require(allowed, "BORROW_NOT_ALLOWED");
 
+        // TODO: Safe??
+        // TODO: Store balances.
         // Directly transfer tokens from the fToken to the user.
         FusePoolToken(msg.sender).UNDERLYING().transferFrom(msg.sender, user, amount);
     }
