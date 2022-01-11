@@ -284,6 +284,9 @@ contract FusePoolToken is ERC20, Auth {
         // This code will fail if the user does not have enough fTokens.
         _burn(from, shares);
 
+        // Emit the event.
+        emit Withdraw(from, to, value);
+
         // Transfer tokens from the fToken contract to the user.
         UNDERLYING.safeTransfer(to, value);
     }
