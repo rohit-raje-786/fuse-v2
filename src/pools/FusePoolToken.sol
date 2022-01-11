@@ -256,8 +256,8 @@ contract FusePoolToken is ERC20, Auth {
         // Ensure the amount is valid.
         require(underlyingAmount != 0, "AMOUNT_TOO_LOW");
 
-        // Burn fTokens the equivalent amount of fTokens.
-        // This code will fail if the user does not have enough fTokens.
+        // Burn fTokens to enable the withdrawal.
+        // Will revert if the user does not have enough.
         _burn(from, underlyingAmount.fdiv(exchangeRate(), BASE_UNIT));
 
         // Emit the event.
@@ -280,8 +280,8 @@ contract FusePoolToken is ERC20, Auth {
         // Calculate the underlying amount to be withdrawn.
         value = shares.fmul(exchangeRate(), BASE_UNIT);
 
-        // Burn fTokens the equivalent amount of fTokens.
-        // This code will fail if the user does not have enough fTokens.
+        // Burn fTokens to enable the withdrawal.
+        // Will revert if the user does not have enough.
         _burn(from, shares);
 
         // Emit the event.
