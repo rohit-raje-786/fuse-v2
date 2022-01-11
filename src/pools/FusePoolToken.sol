@@ -203,6 +203,9 @@ contract FusePoolToken is ERC20, Auth {
         // Mint fTokens to the user.
         _mint(to, shares);
 
+        // Emit the event.
+        emit Deposit(msg.sender, to, underlyingAmount);
+
         // Transfer tokens from the user to the fToken contract.
         UNDERLYING.safeTransferFrom(msg.sender, address(this), underlyingAmount);
     }
@@ -225,16 +228,23 @@ contract FusePoolToken is ERC20, Auth {
 
     /// @notice Withdraw a specific amount of underlying tokens.
     /// @param underlyingAmount The amount of underlying tokens withdrawn.
-    function withdraw(uint256 underlyingAmount) external {
+    function withdraw(
+        address from,
+        address to,
+        uint256 underlyingAmount
+    ) external {
         // Ensure the amount is valid.
         require(underlyingAmount > 0, "AMOUNT_TOO_LOW");
 
         // Burn fTokens the equivalent amount of fTokens.
         // This code will fail if the user does not have enough fTokens.
-        _burn(msg.sender, underlyingAmount.fdiv(exchangeRate(), BASE_UNIT));
+        _burn(from, underlyingAmount.fdiv(exchangeRate(), BASE_UNIT));
+
+        // Emit the event.
+        emit Withdraw(from, to, underlyingAmount);
 
         // Transfer tokens from the fToken contract to the user.
-        UNDERLYING.safeTransfer(msg.sender, underlyingAmount);
+        UNDERLYING.safeTransfer(to, underlyingAmount);
     }
 
     /// @notice Redeem a specific amount of fTokens for underlying tokens.
