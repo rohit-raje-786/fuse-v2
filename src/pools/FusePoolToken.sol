@@ -211,11 +211,10 @@ contract FusePoolToken is ERC20, Auth {
         UNDERLYING.safeTransferFrom(msg.sender, address(this), underlyingAmount);
     }
 
-    /// @notice Deposit a specific amount of underlying tokens as collateral
+    /// @notice Deposit a specific amount of underlying tokens.
     /// @param to The address to mint fTokens to.
     /// @param shares The amount of fTokens to be minted.
-    /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
-    function mint(address to, uint256 shares) external returns (uint256 value) {
+    function mint(address to, uint256 shares) public returns (uint256 value) {
         // Ensure the amount is valid.
         require(shares != 0, "AMOUNT_TOO_LOW");
 
@@ -236,9 +235,21 @@ contract FusePoolToken is ERC20, Auth {
     /// @param to The address to mint fTokens to.
     /// @param underlyingAmount The amount of underlying tokens withdrawn.
     /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
-    function lend(address to, uint256 underlyingAmount) external returns (uint256 shares) {
+    function lend(address to, uint256 underlyingAmount) public returns (uint256 shares) {
         // Transfer underlying tokens to the contract and mint fTokens to the user.
         shares = deposit(to, underlyingAmount);
+
+        // Add the asset to the user's asset list.
+        MANAGER.enableUserCollateral(msg.sender);
+    }
+
+    /// @notice Deposit a specific amount of underlying tokens as collateral.
+    /// @param to The address to mint fTokens to.
+    /// @param shares The amount of fTokens to be minted.
+    /// @dev Adds the asset to the user's collateral list (stored in the FusePoolManager).
+    function supply(address to, uint256 shares) public returns (uint256 value) {
+        // Transfer underlying tokens to the contract and mint fTokens to the user.
+        value = mint(to, shares);
 
         // Add the asset to the user's asset list.
         MANAGER.enableUserCollateral(msg.sender);
