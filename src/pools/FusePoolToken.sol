@@ -231,6 +231,8 @@ contract FusePoolToken is ERC20, Auth {
         UNDERLYING.safeTransferFrom(msg.sender, address(this), value);
     }
 
+    // TODO: Rename these two for symmetry.
+
     /// @notice Deposit a specific amount of underlying tokens as collateral.
     /// @param to The address to mint fTokens to.
     /// @param underlyingAmount The amount of underlying tokens withdrawn.
@@ -368,7 +370,7 @@ contract FusePoolToken is ERC20, Auth {
         uint256 supply = totalSupply;
 
         // If the totalSupply is 0, return a default exchange rate of 1.
-        if (totalSupply == 0) return BASE_UNIT;
+        if (supply == 0) return BASE_UNIT;
 
         // Return the exchange rate.
         return totalHoldings().fdiv(supply, BASE_UNIT);
