@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.10;
 
-import {Auth, Authority} from "solmate/auth/Auth.sol";
+import {Auth, Authority} from "solmate-next/auth/Auth.sol";
 
 import {FusePool} from "./FusePool.sol";
 
