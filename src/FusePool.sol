@@ -56,9 +56,9 @@ contract FusePool is Auth {
     event AssetAdded(ERC20 indexed asset, ERC4626 indexed vault);
 
     /// @notice Adds a new asset to the FusePool.
-    /// @param asset s
-    /// @param vault s
-    /// @param parameters s
+    /// @param asset The address of the underlying token.
+    /// @param vault The address of the ERC4626 vault where the underlying token is held.
+    /// @param parameters The parameters of the asset.
     function addAsset(
         ERC20 asset,
         ERC4626 vault,
