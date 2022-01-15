@@ -7,3 +7,6 @@
 [submodule "RUST_BACKTRACE=1/lib/ds-test"]
 	path = RUST_BACKTRACE=1/lib/ds-test
 	url = https://github.com/dapphub/ds-test
+[submodule "lib/solmate-next"]
+	path = lib/solmate-next
+	url = https://github.com/transmissions11/solmate-next
