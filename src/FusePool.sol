@@ -71,4 +71,30 @@ contract FusePool is Auth {
         // Emit the event.
         emit AssetAdded(asset, vault);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                        DEPOSIT/WITHDRAW LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted after a successful deposit.
+    /// @param from The address that triggered the deposit.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens deposited.
+    event Deposit(address indexed from, ERC20 indexed asset, uint256 amount);
+
+    /// @notice Emitted after a successful withdrawal.
+    /// @param from The address that triggered the withdrawal.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens withdrew.
+    event Withdraw(address indexed from, ERC20 indexed asset, uint256 amount);
+
+    /// @notice Deposit underlying tokens into the Fuse Pool.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens deposited.
+    function deposit(ERC20 asset, uint256 amount) external {}
+
+    /// @notice Withdraw underlying tokens from the Fuse Pool.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens withdrawn.
+    function withdraw(ERC20 asset, uint256 amount) external {}
 }
