@@ -37,9 +37,8 @@ contract FusePoolFactory is Auth {
     /// @param deployer The address of the FusePool deployer.
     event PoolDeployed(FusePool indexed pool, address indexed deployer);
 
-    /// @notice
-    /// @dev
-    /// @return pool
+    /// @notice Deploy a new Fuse Pool.
+    /// @return pool The address of the newly deployed pool.
     function deployFusePool(string memory name) external returns (FusePool pool) {
         // Update state variables.
         poolNumber++;
