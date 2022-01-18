@@ -33,4 +33,12 @@ contract FusePoolTest is DSTestPlus {
     function testAddAsset() public {
         pool.addAsset(ERC20(address(underlying)), vault, FusePool.Asset(0, 0));
     }
+
+    function testDeposit() public {
+        testAddAsset();
+        underlying.mint(address(this), 100);
+
+        underlying.approve(address(pool), 100);
+        pool.deposit(underlying, 100);
+    }
 }
