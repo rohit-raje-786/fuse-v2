@@ -35,7 +35,7 @@ contract FusePoolFactory is Auth {
     /// @notice Emitted when a new Fuse Pool is deployed.
     /// @param pool The newly deployed Fuse Pool.
     /// @param deployer The address of the FusePool deployer.
-    event PoolDeployed(FusePool indexed pool, address indexed deployer);
+    event PoolDeployed(uint256 indexed id, FusePool indexed pool, address indexed deployer);
 
     /// @notice Deploy a new Fuse Pool.
     /// @return pool The address of the newly deployed pool.
@@ -51,7 +51,7 @@ contract FusePoolFactory is Auth {
         pool = new FusePool{salt: bytes32(id)}();
 
         // Emit the event.
-        emit PoolDeployed(pool, msg.sender);
+        emit PoolDeployed(id, pool, msg.sender);
     }
 
     /*///////////////////////////////////////////////////////////////
