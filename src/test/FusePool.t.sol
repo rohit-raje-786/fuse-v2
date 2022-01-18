@@ -36,9 +36,19 @@ contract FusePoolTest is DSTestPlus {
 
     function testDeposit() public {
         testAddAsset();
-        underlying.mint(address(this), 100);
+        mintAndApprove(1e18);
 
-        underlying.approve(address(pool), 100);
-        pool.deposit(underlying, 100);
+        pool.deposit(underlying, 1e18);
+
+        // Checks:
+        assertEq(pool.balances(address(this), underlying), 1e18, "Balance not updated");
+        assertEq(pool.totalSupplies(underlying), 1e18, "Total supply not updated");
+        assertEq(pool.totalUnderlying(underlying), 1e18, "Total underlying not updated");
+    }
+
+    // Mint and approve tokens.
+    function mintAndApprove(uint256 amount) internal {
+        underlying.mint(address(this), amount);
+        underlying.approve(address(pool), amount);
     }
 }
