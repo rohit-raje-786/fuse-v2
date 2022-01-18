@@ -121,7 +121,7 @@ contract FusePool is Auth {
     /// represent the underlying balances. We store user balances similarly to how fTokens
     /// store balances, however in Fuse v2, we do this internally rather than using ERC20
     /// compliant representations.
-    mapping(ERC20 => mapping(address => uint256)) public balances;
+    mapping(address => mapping(ERC20 => uint256)) public balances;
 
     /// @notice Maps underlying tokens to a number representing the amount of internal tokens
     /// used to represent user balances. Think of this as fToken.totalSupply().
