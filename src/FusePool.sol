@@ -91,10 +91,10 @@ contract FusePool is Auth {
     /// @notice Deposit underlying tokens into the Fuse Pool.
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens deposited.
-    function deposit(ERC20 asset, uint256 amount) external {}
+    function deposit(ERC20 asset, uint256 amount) public {}
 
     /// @notice Withdraw underlying tokens from the Fuse Pool.
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens withdrawn.
-    function withdraw(ERC20 asset, uint256 amount) external {}
+    function withdraw(ERC20 asset, uint256 amount) public {}
 }
