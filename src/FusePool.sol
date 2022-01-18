@@ -4,12 +4,20 @@ pragma solidity 0.8.10;
 import {Auth, Authority} from "solmate-next/auth/Auth.sol";
 import {ERC20, ERC4626} from "solmate-next/mixins/ERC4626.sol";
 
+import {SafeCastLib} from "lib/solmate-next/src/utils/SafeCastLib.sol";
+import {SafeTransferLib} from "lib/solmate-next/src/utils/SafeTransferLib.sol";
+import {FixedPointMathLib} from "lib/solmate-next/src/utils/FixedPointMathLib.sol";
+
 import {FusePoolFactory} from "./FusePoolFactory.sol";
 
 /// @title Fuse Pool
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice Minimal, gas optimized lending market
 contract FusePool is Auth {
+    using SafeCastLib for uint256;
+    using SafeTransferLib for ERC20;
+    using FixedPointMathLib for uint256;
+
     /*///////////////////////////////////////////////////////////////
                                 IMMUTABLES
     //////////////////////////////////////////////////////////////*/
@@ -125,5 +133,7 @@ contract FusePool is Auth {
 
     /// @notice Returns an exchange rate between underlying tokens and
     /// the Fuse Pools internal balance values.
-    function exchangeRate(ERC20 asset) public view returns (uint256) {}
+    function exchangeRate(ERC20 asset) public view returns (uint256) {
+        //return totalUnderlying(asset).fmul
+    }
 }
