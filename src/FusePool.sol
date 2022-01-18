@@ -102,6 +102,18 @@ contract FusePool is Auth {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    // TODO: be more concise here
+    /// @notice Maps underlying tokens to a map containing the balances of users.
+    /// Since underlying balances fluctuate, the values we store don't exactly
+    /// represent the underlying balances. We store user balances similarly to how fTokens
+    /// store balances, however in Fuse v2, we do this internally rather than using ERC20
+    /// compliant representations.
+    mapping(ERC20 => mapping(address => uint256)) public balances;
+
+    /// @notice Maps underlying tokens to a number representing the amount of internal tokens
+    /// used to represent user balances. Think of this as fToken.totalSupply().
+    mapping(ERC20 => uint256) public totalSupplies;
+
     /// @notice Returns the total amount of underlying tokens held by the Fuse Pool.
     /// @param asset The address of the underlying token.
     function totalUnderlying(ERC20 asset) public view returns (uint256) {
@@ -110,4 +122,8 @@ contract FusePool is Auth {
         // Retrive the total amount of underlying held in the asset vault.
         return poolVaults[asset].balanceOfUnderlying(address(this));
     }
+
+    /// @notice Returns an exchange rate between underlying tokens and
+    /// the Fuse Pools internal balance values.
+    function exchangeRate(ERC20 asset) public view returns (uint256) {}
 }
