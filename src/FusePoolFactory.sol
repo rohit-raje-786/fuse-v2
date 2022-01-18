@@ -42,19 +42,19 @@ contract FusePoolFactory is Auth {
 
     /// @notice Deploy a new Fuse Pool.
     /// @return pool The address of the newly deployed pool.
-    function deployFusePool(string memory name) external returns (FusePool pool, uint256 id) {
+    function deployFusePool(string memory name) external returns (FusePool pool, uint256 number) {
         // Calculate pool ID.
-        id = poolNumber + 1;
+        number = poolNumber + 1;
 
         // Update state variables.
-        poolNumber = id;
+        poolNumber = number;
         poolDeploymentName = name;
 
         // Deploy the Fuse Pool using the CREATE2 opcode.
-        pool = new FusePool{salt: bytes32(id)}();
+        pool = new FusePool{salt: bytes32(number)}();
 
         // Emit the event.
-        emit PoolDeployed(id, pool, msg.sender);
+        emit PoolDeployed(number, pool, msg.sender);
     }
 
     /*///////////////////////////////////////////////////////////////
