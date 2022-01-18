@@ -38,10 +38,14 @@ contract FusePool is Auth {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Maps underlying tokens to the ERC4626 Vaults where they are held.
-    mapping(ERC20 => ERC4626) public poolVaults;
+    mapping(ERC20 => ERC4626) public vaults;
 
     /// @notice Maps underlying tokens to structs containing their lend/borrow factors.
-    mapping(ERC20 => Asset) public poolFactors;
+    mapping(ERC20 => Asset) public configurations;
+
+    /// @notice Maps underlying tokens to the base units that we use when interacting with them.
+    /// @dev This is 10**asset.decimals().
+    mapping(ERC20 => uint256) public baseUnits;
 
     /// @dev Asset configuration.
     struct Asset {
@@ -73,8 +77,9 @@ contract FusePool is Auth {
         Asset memory parameters
     ) external {
         // Set storage variables.
-        poolVaults[asset] = vault;
-        poolFactors[asset] = parameters;
+        vaults[asset] = vault;
+        configurations[asset] = parameters;
+        baseUnits[asset] = 10**asset.decimals();
 
         // Emit the event.
         emit AssetAdded(asset, vault);
@@ -128,12 +133,10 @@ contract FusePool is Auth {
         // TODO: Add other methods to account for funds not in the contract.
 
         // Retrive the total amount of underlying held in the asset vault.
-        return poolVaults[asset].balanceOfUnderlying(address(this));
+        return vaults[asset].balanceOfUnderlying(address(this));
     }
 
     /// @notice Returns an exchange rate between underlying tokens and
     /// the Fuse Pools internal balance values.
-    function exchangeRate(ERC20 asset) public view returns (uint256) {
-        //return totalUnderlying(asset).fmul
-    }
+    function exchangeRate(ERC20 asset) public view returns (uint256) {}
 }
