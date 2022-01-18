@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.10;
 
-import {Auth, Authority} from "solmate-next/auth/Auth.sol";
-
 import {FusePool} from "./FusePool.sol";
+import {Auth, Authority} from "solmate-next/auth/Auth.sol";
+import {Bytes32AddressLib} from "solmate/utils/Bytes32AddressLib.sol";
 
 /// @title Fuse Pool Factory
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice Factory enabling the deployment of Fuse Pools.
 contract FusePoolFactory is Auth {
+    using Bytes32AddressLib for address;
+    using Bytes32AddressLib for bytes32;
+
     /*///////////////////////////////////////////////////////////////
                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
@@ -41,7 +44,7 @@ contract FusePoolFactory is Auth {
     /// @return pool The address of the newly deployed pool.
     function deployFusePool(string memory name) external returns (FusePool pool, uint256 id) {
         // Calculate pool ID.
-        uint256 id = poolNumber + 1;
+        id = poolNumber + 1;
 
         // Update state variables.
         poolNumber = id;
@@ -58,5 +61,30 @@ contract FusePoolFactory is Auth {
                            POOL RETRIEVAL LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Get the
+    /// @notice Get the address of a Fuse Pool given its ID.
+    function getPoolFromNumber(uint256 id) external view returns (FusePool pool) {
+        // Retrieve the Fuse Pool.
+        return
+            FusePool(
+                payable(
+                    keccak256(
+                        abi.encodePacked(
+                            // Prefix:
+                            bytes1(0xFF),
+                            // Creator:
+                            address(this),
+                            // Salt:
+                            bytes32(id),
+                            // Bytecode hash:
+                            keccak256(
+                                abi.encodePacked(
+                                    // Deployment bytecode:
+                                    type(FusePool).creationCode
+                                )
+                            )
+                        )
+                    ).fromLast20Bytes() // Convert the CREATE2 hash into an address.
+                )
+            );
+    }
 }
