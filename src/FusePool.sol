@@ -138,5 +138,14 @@ contract FusePool is Auth {
 
     /// @notice Returns an exchange rate between underlying tokens and
     /// the Fuse Pools internal balance values.
-    function exchangeRate(ERC20 asset) public view returns (uint256) {}
+    function exchangeRate(ERC20 asset) public view returns (uint256) {
+        // Retrieve the totalSupply of the internal balance token.
+        uint256 supply = totalSupplies[asset];
+
+        // If the totaly supply is 0, return 0.
+        if (supply == 0) return 0;
+
+        // Return the exchangeRate.
+        return totalUnderlying(asset).fdiv(supply, baseUnits[asset]);
+    }
 }
