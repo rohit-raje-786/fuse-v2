@@ -119,7 +119,17 @@ contract FusePool is Auth {
     /// @notice Withdraw underlying tokens from the Fuse Pool.
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens withdrawn.
-    function withdraw(ERC20 asset, uint256 amount) public {}
+    function withdraw(ERC20 asset, uint256 amount) public {
+        // Ensure the amount is valid.
+        require(amount > 0, "AMOUNT_TOO_LOW");
+
+        // Modify the internal balance of the sender.
+        // This code will fail if the sender does not have a large enough balance.
+        balances[msg.sender][asset] -= amount.fdiv(exchangeRate(asset), baseUnits[asset]);
+
+        // Transfer tokens to the user.
+        asset.safeTransfer(msg.sender, amount);
+    }
 
     /*///////////////////////////////////////////////////////////////
                             ACCOUNTING LOGIC
