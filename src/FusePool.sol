@@ -97,4 +97,17 @@ contract FusePool is Auth {
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens withdrawn.
     function withdraw(ERC20 asset, uint256 amount) public {}
+
+    /*///////////////////////////////////////////////////////////////
+                            ACCOUNTING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Returns the total amount of underlying tokens held by the Fuse Pool.
+    /// @param asset The address of the underlying token.
+    function totalUnderlying(ERC20 asset) public view returns (uint256) {
+        // TODO: Add other methods to account for funds not in the contract.
+
+        // Retrive the total amount of underlying held in the asset vault.
+        return poolVaults[asset].balanceOfUnderlying(address(this));
+    }
 }
