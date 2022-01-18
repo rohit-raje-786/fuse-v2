@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.10;
 
+import {ERC4626} from "solmate-next/mixins/ERC4626.sol";
 import {Auth, Authority} from "solmate-next/auth/Auth.sol";
-import {ERC20, ERC4626} from "solmate-next/mixins/ERC4626.sol";
 
+// TODO: Should not have to import ERC20 from here
+import {ERC20, SafeTransferLib} from "lib/solmate-next/src/utils/SafeTransferLib.sol";
 import {SafeCastLib} from "lib/solmate-next/src/utils/SafeCastLib.sol";
-import {SafeTransferLib} from "lib/solmate-next/src/utils/SafeTransferLib.sol";
 import {FixedPointMathLib} from "lib/solmate-next/src/utils/FixedPointMathLib.sol";
 
 import {FusePoolFactory} from "./FusePoolFactory.sol";
@@ -104,7 +105,13 @@ contract FusePool is Auth {
     /// @notice Deposit underlying tokens into the Fuse Pool.
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens deposited.
-    function deposit(ERC20 asset, uint256 amount) public {}
+    function deposit(ERC20 asset, uint256 amount) public {
+        // Ensure the amount is valid.
+        require(amount > 0, "AMOUNT_TOO_LOW");
+
+        // Modify the internal balance of the sender.
+        balances[msg.sender][asset] += amount.fdiv(exchangeRate(asset), baseUnits[asset]);
+    }
 
     /// @notice Withdraw underlying tokens from the Fuse Pool.
     /// @param asset The address of the underlying token.
