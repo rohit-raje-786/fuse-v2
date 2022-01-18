@@ -163,7 +163,7 @@ contract FusePool is Auth {
         uint256 supply = totalSupplies[asset];
 
         // If the totaly supply is 0, return 0.
-        if (supply == 0) return 0;
+        if (supply == 0) return baseUnits[asset];
 
         // Return the exchangeRate.
         return totalUnderlying(asset).fdiv(supply, baseUnits[asset]);
