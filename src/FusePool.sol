@@ -5,9 +5,9 @@ import {ERC4626} from "solmate-next/mixins/ERC4626.sol";
 import {Auth, Authority} from "solmate-next/auth/Auth.sol";
 
 // TODO: Should not have to import ERC20 from here
-import {ERC20, SafeTransferLib} from "lib/solmate-next/src/utils/SafeTransferLib.sol";
-import {SafeCastLib} from "lib/solmate-next/src/utils/SafeCastLib.sol";
-import {FixedPointMathLib} from "lib/solmate-next/src/utils/FixedPointMathLib.sol";
+import {ERC20, SafeTransferLib} from "solmate-next/utils/SafeTransferLib.sol";
+import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
+import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
 
 import {FusePoolFactory} from "./FusePoolFactory.sol";
 
