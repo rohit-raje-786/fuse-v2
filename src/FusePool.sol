@@ -109,8 +109,15 @@ contract FusePool is Auth {
         // Ensure the amount is valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
 
+        // Calculate the amount to store.
+        uint256 shares = amount.fdiv(exchangeRate(asset), baseUnits[asset]);
+
         // Modify the internal balance of the sender.
-        balances[msg.sender][asset] += amount.fdiv(exchangeRate(asset), baseUnits[asset]);
+        balances[msg.sender][asset] += shares;
+
+        // TODO: Better way to describe this.
+        // Add to the total supply of the internal balance token of the asset.
+        totalSupplies[asset] += shares;
 
         // Transfer tokens from the user to the fToken contract.
         asset.safeTransferFrom(msg.sender, address(this), amount);
