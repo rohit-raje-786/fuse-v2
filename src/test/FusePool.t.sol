@@ -3,6 +3,9 @@ pragma solidity 0.8.10;
 
 import {FusePool, FusePoolFactory} from "../FusePoolFactory.sol";
 
+// TODO: I should not have to import ERC20 from here.
+import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
+
 import {Authority} from "solmate-next/auth/Auth.sol";
 import {DSTestPlus} from "solmate-next/test/utils/DSTestPlus.sol";
 
@@ -25,5 +28,9 @@ contract FusePoolTest is DSTestPlus {
 
         underlying = new MockERC20("Test Underlying", "TST", 18);
         vault = new MockERC4626(underlying, "Test Vault", "TST");
+    }
+
+    function testAddAsset() public {
+        pool.addAsset(ERC20(address(underlying)), vault, FusePool.Asset(0, 0));
     }
 }
