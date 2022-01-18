@@ -111,6 +111,9 @@ contract FusePool is Auth {
 
         // Modify the internal balance of the sender.
         balances[msg.sender][asset] += amount.fdiv(exchangeRate(asset), baseUnits[asset]);
+
+        // Transfer tokens from the user to the fToken contract.
+        asset.safeTransferFrom(msg.sender, address(this), amount);
     }
 
     /// @notice Withdraw underlying tokens from the Fuse Pool.
