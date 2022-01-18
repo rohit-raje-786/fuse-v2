@@ -40,7 +40,7 @@ contract FusePoolTest is DSTestPlus {
 
         pool.deposit(underlying, 1e18);
 
-        // Checks:
+        // note that the default exchange rate is 1:1, so these values should be set to 1e18.
         assertEq(pool.balances(address(this), underlying), 1e18, "Balance not updated");
         assertEq(pool.totalSupplies(underlying), 1e18, "Total supply not updated");
         assertEq(pool.totalUnderlying(underlying), 1e18, "Total underlying not updated");
