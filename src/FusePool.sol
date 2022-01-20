@@ -135,9 +135,14 @@ contract FusePool is Auth {
         // Ensure the amount is valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
 
-        // Modify the internal balance of the sender.
+        // Modify the internal balance of the sender and the total supply of the balance token.
         // This code will fail if the sender does not have a large enough balance.
-        balances[msg.sender][asset] -= amount.fdiv(exchangeRate(asset), baseUnits[asset]);
+        uint256 shares = amount.fdiv(exchangeRate(asset), baseUnits[asset]);
+        balances[msg.sender][asset] -= shares;
+        totalSupplies[asset] -= shares;
+
+        // Withdraw tokens from the vault.
+        vaults[asset].withdraw(address(this), amount);
 
         // Transfer tokens to the user.
         asset.safeTransfer(msg.sender, amount);
