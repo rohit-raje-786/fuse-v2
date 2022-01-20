@@ -149,6 +149,32 @@ contract FusePool is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
+                            BORROW/REPAY LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted after a successful borrow.
+    /// @param from The address that triggered the borrow.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens borrowed.
+    event Borrow(address indexed from, ERC20 indexed asset, uint256 amount);
+
+    /// @notice Emitted after a successful repayment.
+    /// @param from The address that triggered the repayment.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens repaid.
+    event Repay(address indexed from, ERC20 indexed asset, uint256 amount);
+
+    /// @notice Borrow underlying tokens from the Fuse Pool.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens to borrow.
+    function borrow(ERC20 asset, uint256 amount) external {}
+
+    /// @notice Borrow underlying tokens from the Fuse Pool.
+    /// @param asset The address of the underlying token.
+    /// @param amount The amount of underlying tokens to borrow.
+    function repay(ERC20 asset, uint256 amount) external {}
+
+    /*///////////////////////////////////////////////////////////////
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
