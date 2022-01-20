@@ -87,7 +87,7 @@ contract FusePool is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
-                        DEPOSIT/WITHDRAW LOGIC
+                       DEPOSIT/WITHDRAW INTERFACE
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted after a successful deposit.
@@ -149,7 +149,7 @@ contract FusePool is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
-                            BORROW/REPAY LOGIC
+                      BORROW/REPAYMENT INTERFACE
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted after a successful borrow.
