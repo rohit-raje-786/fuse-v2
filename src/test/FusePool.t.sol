@@ -51,6 +51,22 @@ contract FusePoolTest is DSTestPlus {
         assertEq(pool.totalUnderlying(underlying), amount, "Total underlying not updated");
     }
 
+    function testWithdrawal(uint256 amount) public {
+        if (amount < 1e9 || amount > 1e36) return;
+
+        // Deposit tokens to the FusePool.
+        testDeposit(amount);
+
+        // Withdraw tokens from the FusePool.
+        pool.withdraw(underlying, amount);
+
+        // Do checks.
+        assertEq(pool.balances(address(this), underlying), 0, "Balance not updated");
+        assertEq(pool.totalSupplies(underlying), 0, "Total supply not updated");
+        assertEq(pool.totalUnderlying(underlying), 0, "Total underlying not updated");
+        assertEq(underlying.balanceOf(address(this)), 0, "Tokens not transferred back");
+    }
+
     // Mint and approve tokens.
     function mintAndApprove(uint256 amount) internal {
         underlying.mint(address(this), amount);
