@@ -34,16 +34,21 @@ contract FusePoolTest is DSTestPlus {
         pool.addAsset(ERC20(address(underlying)), vault, FusePool.Asset(0, 0));
     }
 
-    function testDeposit() public {
+    function testDeposit(uint256 amount) public {
+        if (amount < 1e9 || amount > 1e36) return;
+
+        // Add the asset to the pool and mint tokens.
         testAddAsset();
-        mintAndApprove(1e18);
+        mintAndApprove(amount);
 
-        pool.deposit(underlying, 1e18);
+        // Deposit tokens to the Fuse Pool.
+        pool.deposit(underlying, amount);
 
-        // note that the default exchange rate is 1:1, so these values should be set to 1e18.
-        assertEq(pool.balances(address(this), underlying), 1e18, "Balance not updated");
-        assertEq(pool.totalSupplies(underlying), 1e18, "Total supply not updated");
-        assertEq(pool.totalUnderlying(underlying), 1e18, "Total underlying not updated");
+        // Do checks.
+        // note that the default exchange rate is 1:1, so these values should be set to the input amount.
+        assertEq(pool.balances(address(this), underlying), amount, "Balance not updated");
+        assertEq(pool.totalSupplies(underlying), amount, "Total supply not updated");
+        assertEq(pool.totalUnderlying(underlying), amount, "Total underlying not updated");
     }
 
     // Mint and approve tokens.
