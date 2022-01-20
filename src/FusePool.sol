@@ -121,6 +121,11 @@ contract FusePool is Auth {
 
         // Transfer tokens from the user to the fToken contract.
         asset.safeTransferFrom(msg.sender, address(this), amount);
+
+        // Deposit the asset into the vault.
+        ERC4626 vault = vaults[asset];
+        asset.approve(address(vault), amount);
+        vault.deposit(address(this), amount);
     }
 
     /// @notice Withdraw underlying tokens from the Fuse Pool.
