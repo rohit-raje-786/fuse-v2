@@ -7,13 +7,13 @@ import {FusePool, FusePoolFactory} from "../FusePoolFactory.sol";
 import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
 
 import {Authority} from "solmate-next/auth/Auth.sol";
-import {DSTestPlus} from "solmate-next/test/utils/DSTestPlus.sol";
+import {DSTest} from "ds-test/test.sol";
 
 import {MockERC4626} from "./mocks/MockERC4626.sol";
 import {MockERC20} from "solmate-next/test/utils/mocks/MockERC20.sol";
 
 /// @title Fuse Pool Factory Test Contract
-contract FusePoolTest is DSTestPlus {
+contract FusePoolTest is DSTest {
     // Used variables.
     FusePoolFactory factory;
     FusePool pool;
@@ -64,7 +64,7 @@ contract FusePoolTest is DSTestPlus {
         assertEq(pool.balances(address(this), underlying), 0, "Balance not updated");
         assertEq(pool.totalSupplies(underlying), 0, "Total supply not updated");
         assertEq(pool.totalUnderlying(underlying), 0, "Total underlying not updated");
-        assertEq(underlying.balanceOf(address(this)), 0, "Tokens not transferred back");
+        assertEq(underlying.balanceOf(address(this)), amount, "Tokens not transferred back");
     }
 
     // Mint and approve tokens.
