@@ -13,6 +13,10 @@ contract MockERC4626 is ERC4626 {
 
     function afterDeposit(uint256 underlyingAmount) internal override {}
 
+    function balanceOfUnderlying(address) public view override returns (uint256) {
+        return underlying.balanceOf(address(this));
+    }
+
     function totalHoldings() public view override returns (uint256) {
         return underlying.balanceOf(address(this));
     }
