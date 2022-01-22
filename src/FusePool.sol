@@ -211,4 +211,12 @@ contract FusePool is Auth {
         // Return the exchangeRate.
         return totalUnderlying(asset).fdiv(supply, baseUnits[asset]);
     }
+
+    /// @notice Returns the amount of underlying tokens in the Fuse Pool
+    /// that aren't being borrowed.
+    /// @param asset The address of the underlying token.
+    function totalFloat(ERC20 asset) public view returns (uint256) {
+        // Retrieve the totalSupply of the internal balance token.
+        return vaults[asset].balanceOfUnderlying(address(this));
+    }
 }
