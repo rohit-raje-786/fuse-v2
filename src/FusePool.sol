@@ -10,6 +10,7 @@ import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
 import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
 
 import {FusePoolFactory} from "./FusePoolFactory.sol";
+import {IFlashBorrower} from "./interface/IFlashBorrower.sol";
 
 /// @title Fuse Pool
 /// @author Jet Jadeja <jet@rari.capital>
@@ -173,6 +174,39 @@ contract FusePool is Auth {
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens to borrow.
     function repay(ERC20 asset, uint256 amount) external {}
+
+    /*///////////////////////////////////////////////////////////////
+                            FLASHLOAN LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a Flash Loan is executed.
+    event FlashLoan(address indexed from, address indexed borrower, ERC20 indexed asset, uint256 amount);
+
+    /// @notice Execute a Flash Loan.
+    function flashLoan(
+        IFlashBorrower borrower,
+        bytes memory data,
+        ERC20 asset,
+        uint256 amount
+    ) external {
+        // Ensure the FusePool has a valid amount of liquidity.
+        require(totalFloat(asset) >= amount, "INSUFFICIENT_LIQUIDITY");
+
+        // Store the current vault balance.
+        uint256 balance = vaults[asset].balanceOfUnderlying(address(this));
+
+        // Withdraw the amount from the FusePool and transfer it to the borrower.
+        vaults[asset].withdraw(address(borrower), amount);
+
+        // Call the execute function on the borrower.
+        borrower.execute(amount, data);
+
+        // Ensure the sufficient amount has been returned.
+        require(vaults[asset].balanceOfUnderlying(address(this)) >= balance, "AMOUNT_NOT_RETURNED");
+
+        // Emit the event.
+        emit FlashLoan(msg.sender, address(borrower), asset, amount);
+    }
 
     /*///////////////////////////////////////////////////////////////
                             ACCOUNTING LOGIC
