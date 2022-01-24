@@ -189,9 +189,6 @@ contract FusePool is Auth {
         ERC20 asset,
         uint256 amount
     ) external {
-        // Ensure the FusePool has a valid amount of liquidity.
-        require(totalFloat(asset) >= amount, "INSUFFICIENT_LIQUIDITY");
-
         // Store the current vault balance.
         uint256 balance = vaults[asset].balanceOfUnderlying(address(this));
 
