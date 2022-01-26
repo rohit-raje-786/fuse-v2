@@ -189,6 +189,8 @@ contract FusePool is Auth {
         ERC20 asset,
         uint256 amount
     ) external {
+        // TODO: gas optimizations.
+
         // Store the current vault balance.
         uint256 balance = vaults[asset].balanceOfUnderlying(address(this));
 
