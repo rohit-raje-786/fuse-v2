@@ -197,6 +197,8 @@ contract FusePool is Auth {
         // Withdraw the amount from the FusePool and transfer it to the borrower.
         vaults[asset].withdraw(address(borrower), amount);
 
+        emit FlashLoan(msg.sender, address(borrower), asset, amount);
+
         // Call the execute function on the borrower.
         borrower.execute(amount, data);
 
