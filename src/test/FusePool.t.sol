@@ -9,7 +9,10 @@ import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
 import {Authority} from "solmate-next/auth/Auth.sol";
 import {DSTest} from "ds-test/test.sol";
 
+import {IFlashBorrower} from "../interface/IFlashBorrower.sol";
+
 import {MockERC4626} from "./mocks/MockERC4626.sol";
+import {MockFlashBorrower} from "./mocks/MockFlashBorrower.sol";
 import {MockERC20} from "solmate-next/test/utils/mocks/MockERC20.sol";
 
 /// @title Fuse Pool Factory Test Contract
@@ -28,10 +31,13 @@ contract FusePoolTest is DSTest {
 
         underlying = new MockERC20("Test Underlying", "TST", 18);
         vault = new MockERC4626(underlying, "Test Vault", "TST");
+
+        pool.addAsset(ERC20(address(underlying)), vault, FusePool.Asset(0, 0));
     }
 
     function testAddAsset() public {
-        pool.addAsset(ERC20(address(underlying)), vault, FusePool.Asset(0, 0));
+        assertEq(address(pool.vaults(underlying)), address(vault));
+        assertEq(pool.baseUnits(underlying), 1e18);
     }
 
     function testDeposit(uint256 amount) public {
@@ -65,6 +71,18 @@ contract FusePoolTest is DSTest {
         assertEq(pool.totalSupplies(underlying), 0, "Total supply not updated");
         assertEq(pool.totalUnderlying(underlying), 0, "Total underlying not updated");
         assertEq(underlying.balanceOf(address(this)), amount, "Tokens not transferred back");
+    }
+
+    function testFlashLoan() public {
+        // Deposit funds.
+        testDeposit(1e18);
+
+        // Deploy a mock flash borrower example.
+        MockFlashBorrower borrower = new MockFlashBorrower();
+        bytes memory data = abi.encode(address(underlying));
+
+        // Call a flash loan.
+        pool.flashLoan(IFlashBorrower(address(borrower)), data, underlying, 1e18);
     }
 
     // Mint and approve tokens.
