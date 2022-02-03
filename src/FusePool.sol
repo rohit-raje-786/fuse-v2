@@ -12,6 +12,8 @@ import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
 import {FusePoolFactory} from "./FusePoolFactory.sol";
 import {IFlashBorrower} from "./interface/IFlashBorrower.sol";
 
+import "./test/utils/console.sol";
+
 /// @title Fuse Pool
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice Minimal, gas optimized lending market
@@ -197,6 +199,7 @@ contract FusePool is Auth {
         // Withdraw the amount from the FusePool and transfer it to the borrower.
         vaults[asset].withdraw(address(borrower), amount);
 
+        // Emit the event.
         emit FlashLoan(msg.sender, address(borrower), asset, amount);
 
         // Call the execute function on the borrower.
