@@ -12,12 +12,14 @@ import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
 import {FusePoolFactory} from "./FusePoolFactory.sol";
 import {IFlashBorrower} from "./interface/IFlashBorrower.sol";
 
+// DELETE!
 import "./test/utils/console.sol";
+import {DSTest} from "ds-test/test.sol";
 
 /// @title Fuse Pool
 /// @author Jet Jadeja <jet@rari.capital>
 /// @notice Minimal, gas optimized lending market
-contract FusePool is Auth {
+contract FusePool is Auth, DSTest {
     using SafeCastLib for uint256;
     using SafeTransferLib for ERC20;
     using FixedPointMathLib for uint256;
