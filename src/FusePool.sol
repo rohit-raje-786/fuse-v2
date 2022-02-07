@@ -241,7 +241,7 @@ contract FusePool is Auth, DSTest {
 
     /// @notice Returns an exchange rate between underlying tokens and
     /// the Fuse Pools internal balance values.
-    function exchangeRate(ERC20 asset) public view returns (uint256) {
+    function exchangeRate(ERC20 asset) internal view returns (uint256) {
         // Retrieve the totalSupply of the internal balance token.
         uint256 supply = totalSupplies[asset];
 
