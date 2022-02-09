@@ -230,6 +230,13 @@ contract FusePool is Auth, DSTest {
     /// used to represent user balances. Think of this as fToken.totalSupply().
     mapping(ERC20 => uint256) public totalSupplies;
 
+    /// @notice Returns the underlying balance of a specified user.
+    /// @param asset The address of the underlying token.
+    /// @param user The address of the user.
+    function balanceOfUnderlying(ERC20 asset, address user) public view returns (uint256) {
+        return balances[user][asset].fmul(exchangeRate(asset), baseUnits[asset]);
+    }
+
     /// @notice Returns the total amount of underlying tokens held by the Fuse Pool.
     /// @param asset The address of the underlying token.
     function totalUnderlying(ERC20 asset) public view returns (uint256) {
