@@ -218,12 +218,14 @@ contract FusePool is Auth, DSTest {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: Write up explanation
-    mapping(ERC20 => mapping(address => uint256)) private balances;
+    /// @dev Internal accounting mechanism.
+    /// Maps ERC20 tokens to a map of internal balances.
+    /// One internal token is not equivalent to one underlying token.
+    mapping(ERC20 => mapping(address => uint256)) internal balances;
 
-    /// @notice Maps underlying tokens to a number representing the amount of internal tokens
+    /// @dev Maps underlying tokens to a number representing the amount of internal tokens
     /// used to represent user balances. Think of this as fToken.totalSupply().
-    mapping(ERC20 => uint256) private totalSupplies;
+    mapping(ERC20 => uint256) internal totalSupplies;
 
     /// @notice Returns the underlying balance of a specified user.
     /// @param asset The address of the underlying token.
@@ -241,7 +243,7 @@ contract FusePool is Auth, DSTest {
         return vaults[asset].balanceOfUnderlying(address(this));
     }
 
-    /// @notice Returns an exchange rate between underlying tokens and
+    /// @dev Returns an exchange rate between underlying tokens and
     /// the Fuse Pools internal balance values.
     function exchangeRate(ERC20 asset) internal view returns (uint256) {
         // Retrieve the totalSupply of the internal balance token.
