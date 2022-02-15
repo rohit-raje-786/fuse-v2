@@ -118,7 +118,7 @@ contract FusePool is Auth, DSTest {
         uint256 shares = amount.fdiv(exchangeRate(asset), baseUnits[asset]);
 
         // Modify the internal balance of the sender.
-        balances[msg.sender][asset] += shares;
+        balances[asset][msg.sender] += shares;
 
         // TODO: Better way to describe this.
         // Add to the total supply of the internal balance token of the asset.
@@ -143,7 +143,7 @@ contract FusePool is Auth, DSTest {
         // Modify the internal balance of the sender and the total supply of the balance token.
         // This code will fail if the sender does not have a large enough balance.
         uint256 shares = amount.fdiv(exchangeRate(asset), baseUnits[asset]);
-        balances[msg.sender][asset] -= shares;
+        balances[asset][msg.sender] -= shares;
         totalSupplies[asset] -= shares;
 
         // Withdraw tokens from the vault.
@@ -218,13 +218,8 @@ contract FusePool is Auth, DSTest {
                             ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    // TODO: be more concise here
-    /// @notice Maps underlying tokens to a map containing the balances of users.
-    /// Since underlying balances fluctuate, the values we store don't exactly
-    /// represent the underlying balances. We store user balances similarly to how fTokens
-    /// store balances, however in Fuse v2, we do this internally rather than using ERC20
-    /// compliant representations.
-    mapping(address => mapping(ERC20 => uint256)) public balances;
+    // TODO: Write up explanation
+    mapping(ERC20 => mapping(address => uint256)) public balances;
 
     /// @notice Maps underlying tokens to a number representing the amount of internal tokens
     /// used to represent user balances. Think of this as fToken.totalSupply().
@@ -234,7 +229,7 @@ contract FusePool is Auth, DSTest {
     /// @param asset The address of the underlying token.
     /// @param user The address of the user.
     function balanceOfUnderlying(ERC20 asset, address user) public view returns (uint256) {
-        return balances[user][asset].fmul(exchangeRate(asset), baseUnits[asset]);
+        return balances[asset][user].fmul(exchangeRate(asset), baseUnits[asset]);
     }
 
     /// @notice Returns the total amount of underlying tokens held by the Fuse Pool.
