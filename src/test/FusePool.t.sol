@@ -52,10 +52,8 @@ contract FusePoolTest is DSTest {
 
         // Do checks.
         // note that the default exchange rate is 1:1, so these values should be set to the input amount.
-        assertEq(pool.balances(address(this), underlying), amount, "Balance not updated");
-        assertEq(pool.balanceOfUnderlying(underlying, address(this)), amount, "Balance not updated");
-        assertEq(pool.totalSupplies(underlying), amount, "Total supply not updated");
         assertEq(pool.totalUnderlying(underlying), amount, "Total underlying not updated");
+        assertEq(pool.balanceOfUnderlying(underlying, address(this)), amount, "Balance not updated");
     }
 
     function testWithdrawal(uint256 amount) public {
@@ -68,10 +66,9 @@ contract FusePoolTest is DSTest {
         pool.withdraw(underlying, amount);
 
         // Do checks.
-        assertEq(pool.balances(address(this), underlying), 0, "Balance not updated");
-        assertEq(pool.totalSupplies(underlying), 0, "Total supply not updated");
         assertEq(pool.totalUnderlying(underlying), 0, "Total underlying not updated");
         assertEq(underlying.balanceOf(address(this)), amount, "Tokens not transferred back");
+        assertEq(pool.balanceOfUnderlying(underlying, address(this)), 0, "Balance not updated");
     }
 
     function testFlashLoan() public {
