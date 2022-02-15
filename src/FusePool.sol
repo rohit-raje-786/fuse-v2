@@ -219,11 +219,11 @@ contract FusePool is Auth, DSTest {
     //////////////////////////////////////////////////////////////*/
 
     // TODO: Write up explanation
-    mapping(ERC20 => mapping(address => uint256)) public balances;
+    mapping(ERC20 => mapping(address => uint256)) private balances;
 
     /// @notice Maps underlying tokens to a number representing the amount of internal tokens
     /// used to represent user balances. Think of this as fToken.totalSupply().
-    mapping(ERC20 => uint256) public totalSupplies;
+    mapping(ERC20 => uint256) private totalSupplies;
 
     /// @notice Returns the underlying balance of a specified user.
     /// @param asset The address of the underlying token.
