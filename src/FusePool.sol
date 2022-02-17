@@ -28,7 +28,9 @@ contract FusePool is Auth {
     string public name;
 
     /// @notice Creates a new FusePool.
-    /// @dev Retrieves the pool name from the state of the FusePoolFactory.
+    /// @dev Retrieves the pool name from the FusePoolFactory state.
+    /// This enables us to have a deterministic address that does not require
+    /// the name to identify.
     constructor() Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority()) {
         // Retrieve the name from the FusePoolFactory
         // and set it as the name of the FusePool.
