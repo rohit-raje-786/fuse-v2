@@ -40,6 +40,10 @@ contract FusePoolTest is DSTest {
         assertEq(pool.baseUnits(underlying), 1e18);
     }
 
+    /*///////////////////////////////////////////////////////////////
+                        DEPOSIT/WITHDRAWAL TESTS
+    //////////////////////////////////////////////////////////////*/
+
     function testDeposit(uint256 amount) public {
         if (amount < 1e9 || amount > 1e36) return;
 
@@ -70,6 +74,24 @@ contract FusePoolTest is DSTest {
         assertEq(underlying.balanceOf(address(this)), amount, "Tokens not transferred back");
         assertEq(pool.balanceOfUnderlying(underlying, address(this)), 0, "Balance not updated");
     }
+
+    /*///////////////////////////////////////////////////////////////
+                    DEPOSIT/WITHDRAWAL SANITY TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function testFailWithdrawWithNotEnoughBalance(uint256 amount) public {
+        if (amount < 1e9 || amount > 1e36) revert();
+
+        // Deposit tokens to the FusePool.
+        testDeposit(amount / 2);
+
+        // Withdraw tokens from the FusePool.
+        testWithdrawal(amount);
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                            FLASHLOAN TESTS
+    //////////////////////////////////////////////////////////////*/
 
     function testFlashLoan() public {
         // Deposit funds.
