@@ -80,7 +80,7 @@ contract FusePoolTest is DSTest {
     //////////////////////////////////////////////////////////////*/
 
     function testFailWithdrawWithNotEnoughBalance(uint256 amount) public {
-        if (amount < 1e9 || amount > 1e36) revert();
+        if (amount < 100 || amount > 1e36) revert();
 
         // Deposit tokens to the FusePool.
         testDeposit(amount / 2);

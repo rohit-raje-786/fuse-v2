@@ -222,7 +222,8 @@ contract FusePool is Auth {
     mapping(ERC20 => mapping(address => uint256)) internal balances;
 
     /// @dev Maps underlying tokens to a number representing the amount of internal tokens
-    /// used to represent user balances. Think of this as fToken.totalSupply().
+    /// used to represent user balances.
+    /// Equivalent to fToken.totalSupply().
     mapping(ERC20 => uint256) internal totalSupplies;
 
     /// @notice Returns the underlying balance of a specified user.
@@ -260,5 +261,26 @@ contract FusePool is Auth {
     function totalFloat(ERC20 asset) public view returns (uint256) {
         // Retrieve the totalSupply of the internal balance token.
         return vaults[asset].balanceOfUnderlying(address(this));
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                  INTERNAL BORROW/REPAYMENT LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Internal accounting mechanism for debt.
+    /// Maps ERC20 tokens to a map of internal borrow balances.
+    /// One internal unit of debt is not equivalent to one underlying token.
+    mapping(ERC20 => mapping(address => uint256)) internal borrowBalances;
+
+    /// @dev Maps underlying tokens to a number representing the amount of internal tokens
+    /// used to represent user debt.
+    mapping(ERC20 => uint256) internal totalBorrows;
+
+    /// @notice Returns the underlying borrow balance of a specified user.
+    /// @param asset The address of the underlying token.
+    /// @param user The address of the borrower.
+    function borrowBalance(ERC20 asset, address user) public view returns (uint256) {
+        // TODO: add logic to account for interest.
+        return borrowBalances[asset][user];
     }
 }
