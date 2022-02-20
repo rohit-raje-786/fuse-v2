@@ -170,7 +170,19 @@ contract FusePool is Auth {
     /// @notice Borrow underlying tokens from the Fuse Pool.
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens to borrow.
-    function borrow(ERC20 asset, uint256 amount) external {}
+    function borrow(ERC20 asset, uint256 amount) external {
+        // Ensure the amount is valid.
+        require(amount > 0, "AMOUNT_TOO_LOW");
+
+        // Ensure the borrow is able to execute the borrow.
+        require(canBorrow(asset, msg.sender, amount));
+
+        // Calculate the amount to borrow.
+        uint256 debtShares = amount.fdiv(debtExchangeRate(asset), baseUnits[asset]);
+
+        // Modify the internal balance of the sender.
+        borrowBalances[asset][msg.sender] += debtShares;
+    }
 
     /// @notice Borrow underlying tokens from the Fuse Pool.
     /// @param asset The address of the underlying token.
@@ -282,4 +294,28 @@ contract FusePool is Auth {
         // TODO: add logic to account for interest.
         return borrowBalances[asset][user];
     }
+
+    /// @dev Returns an exchange rate between underlying tokens and
+    /// the Fuse Pools internal balance values.
+    /// @param asset The address of the underlying token.
+    function debtExchangeRate(ERC20 asset) internal view returns (uint256) {
+        // Retrieve the totalSupply of the internal balance token.
+        uint256 supply = totalSupplies[asset];
+
+        // If the totaly supply is 0, return 0.
+        if (supply == 0) return baseUnits[asset];
+
+        // Return the exchangeRate.
+        return totalUnderlying(asset).fdiv(supply, baseUnits[asset]);
+    }
+
+    /// @dev Evaluate whether a user is able to execute a borrow.
+    /// @param asset The address of the underlying token.
+    /// @param user The address of the borrower.
+    /// @param amount The amount of underlying tokens to borrow.
+    function canBorrow(
+        ERC20 asset,
+        address user,
+        uint256 amount
+    ) internal view returns (bool) {}
 }
