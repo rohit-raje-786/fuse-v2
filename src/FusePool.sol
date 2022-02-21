@@ -108,7 +108,11 @@ contract FusePool is Auth {
     /// @notice Deposit underlying tokens into the Fuse Pool.
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens deposited.
-    function deposit(ERC20 asset, uint256 amount) public {
+    function deposit(
+        ERC20 asset,
+        uint256 amount,
+        bool enable
+    ) public {
         // Ensure the amount is valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
 
@@ -129,12 +133,19 @@ contract FusePool is Auth {
         ERC4626 vault = vaults[asset];
         asset.approve(address(vault), amount);
         vault.deposit(address(this), amount);
+
+        // Enable the asset as collateral if `enable` is set to true.
+        if (enable) enableAsset(asset);
     }
 
     /// @notice Withdraw underlying tokens from the Fuse Pool.
     /// @param asset The address of the underlying token.
     /// @param amount The amount of underlying tokens withdrawn.
-    function withdraw(ERC20 asset, uint256 amount) public {
+    function withdraw(
+        ERC20 asset,
+        uint256 amount,
+        bool disable
+    ) public {
         // Ensure the amount is valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
 
@@ -149,6 +160,9 @@ contract FusePool is Auth {
 
         // Transfer tokens to the user.
         asset.safeTransfer(msg.sender, amount);
+
+        // Disable the asset as collateral if `disable` is set to true.
+        if (disable) disableAsset(asset);
     }
 
     /*///////////////////////////////////////////////////////////////
