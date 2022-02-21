@@ -278,6 +278,56 @@ contract FusePool is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
+                       COLLATERALIZATION LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Maps addresses to an array of assets they have listed as collateral.
+    /// If a user is borrowing an asset, it will also be part of this array.
+    mapping(address => ERC20[]) public userCollateral;
+
+    /// @notice Maps users to a map indicating whether they have listed
+    /// the asset as collateral.
+    /// If a user is borrowing an asset, it will also be set to true.
+    mapping(address => mapping(ERC20 => bool)) public enabledCollateral;
+
+    /// @notice Enable an asset as collateral for a user.
+    /// @param asset The address of the underlying token.
+    function enableAsset(ERC20 asset) public {
+        // Ensure that the asset is currently disabled as collateral.
+        if (enabledCollateral[msg.sender][asset]) return;
+
+        // Enable the asset as collateral for the user.
+        userCollateral[msg.sender].push(asset);
+        enabledCollateral[msg.sender][asset] = true;
+    }
+
+    /// @notice Disable an asset as collateral for a user.
+    /// @param asset The address of the underlying token.
+    function disableAsset(ERC20 asset) public {
+        // Ensure that the user is not borrowing this asset.
+        // We do not want this code to fail, as it may be called
+        // in withdrawals.
+        if (borrowBalances[asset][msg.sender] > 0) return;
+
+        // Remove the asset from the user's list of collateral.
+        for (uint256 i = 0; i < userCollateral[msg.sender].length; i++) {
+            if (userCollateral[msg.sender][i] == asset) {
+                // Copy the value of the last element in the array.
+                ERC20 last = userCollateral[msg.sender][userCollateral[msg.sender].length - 1];
+
+                // Remove the last element from the array.
+                delete userCollateral[msg.sender][userCollateral[msg.sender].length - 1];
+
+                // Replace the disabled asset with the new asset.
+                userCollateral[msg.sender][i] = last;
+            }
+        }
+
+        // Disbale asset.
+        enabledCollateral[msg.sender][asset] = false;
+    }
+
+    /*///////////////////////////////////////////////////////////////
                   INTERNAL BORROW/REPAYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
