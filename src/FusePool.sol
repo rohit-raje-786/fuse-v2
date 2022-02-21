@@ -193,7 +193,7 @@ contract FusePool is Auth {
     function repay(ERC20 asset, uint256 amount) external {}
 
     /*///////////////////////////////////////////////////////////////
-                            FLASHLOAN LOGIC
+                          FLASHLOAN INTERFACE
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a Flash Loan is executed.
@@ -320,5 +320,7 @@ contract FusePool is Auth {
         ERC20 asset,
         address user,
         uint256 amount
-    ) internal view returns (bool) {}
+    ) internal view returns (bool) {
+        // Borrow Balance
+    }
 }
