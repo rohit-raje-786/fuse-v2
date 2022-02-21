@@ -281,6 +281,10 @@ contract FusePool is Auth {
                        COLLATERALIZATION LOGIC
     //////////////////////////////////////////////////////////////*/
 
+    // TODO: rename this
+    // assets in the array/that are set to true are not always being used as collateral
+    // and are potentially just being borrowed.
+
     /// @notice Maps addresses to an array of assets they have listed as collateral.
     /// If a user is borrowing an asset, it will also be part of this array.
     mapping(address => ERC20[]) public userCollateral;
@@ -301,6 +305,7 @@ contract FusePool is Auth {
         enabledCollateral[msg.sender][asset] = true;
     }
 
+    // TODO: optimize
     /// @notice Disable an asset as collateral for a user.
     /// @param asset The address of the underlying token.
     function disableAsset(ERC20 asset) public {
