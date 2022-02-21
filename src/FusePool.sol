@@ -182,6 +182,9 @@ contract FusePool is Auth {
 
         // Modify the internal balance of the sender.
         borrowBalances[asset][msg.sender] += debtShares;
+
+        // Transfer tokens to the borrower.
+        asset.transfer(msg.sender, amount);
     }
 
     /// @notice Borrow underlying tokens from the Fuse Pool.
