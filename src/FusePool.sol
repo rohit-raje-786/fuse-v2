@@ -359,6 +359,19 @@ contract FusePool is Auth {
     /// used to represent user debt.
     mapping(ERC20 => uint256) internal totalBorrows;
 
+    /// @dev Store account liquidity details whilst avoiding stack depth errors.
+    struct AccountLiquidity {
+        // A user's total borrow balance in ETH.
+        uint256 borrowBalance;
+        // A user's maximum borrowable value. If their borrowed value
+        // reaches this point, they will get liquidated.
+        uint256 maximumBorrowawble;
+        // A user's actual borrowable value. If their borrowed value
+        // is greater than or equal to this number, the system will
+        // not allow them to borrow any more assets.
+        uint256 actualBorrowable;
+    }
+
     /// @notice Returns the underlying borrow balance of a specified user.
     /// @param asset The address of the underlying token.
     /// @param user The address of the borrower.
@@ -389,7 +402,5 @@ contract FusePool is Auth {
         ERC20 asset,
         address user,
         uint256 amount
-    ) internal view returns (bool) {
-        // Borrow Balance
-    }
+    ) internal view returns (bool) {}
 }
