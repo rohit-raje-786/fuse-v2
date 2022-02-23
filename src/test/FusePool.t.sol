@@ -57,7 +57,7 @@ contract FusePoolTest is DSTest {
         mintAndApprove(amount);
 
         // Deposit tokens to the Fuse Pool.
-        pool.deposit(underlying, amount);
+        pool.deposit(underlying, amount, false);
 
         // Do checks.
         // note that the default exchange rate is 1:1, so these values should be set to the input amount.
@@ -72,7 +72,7 @@ contract FusePoolTest is DSTest {
         testDeposit(amount);
 
         // Withdraw tokens from the FusePool.
-        pool.withdraw(underlying, amount);
+        pool.withdraw(underlying, amount, false);
 
         // Do checks.
         assertEq(pool.totalUnderlying(underlying), 0, "Total underlying not updated");
