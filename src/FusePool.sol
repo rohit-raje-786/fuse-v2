@@ -370,6 +370,9 @@ contract FusePool is Auth {
         // A user's maximum borrowable value. If their borrowed value
         // reaches this point, they will get liquidated.
         uint256 maximumBorrowawble;
+        // A user's borrow balance in ETH multiplied by the average borrow factor.
+        // TODO: need a better name for this
+        uint256 borrowBalancesTimesBorrowFactors;
         // A user's actual borrowable value. If their borrowed value
         // is greater than or equal to this number, the system will
         // not allow them to borrow any more assets.
@@ -406,5 +409,46 @@ contract FusePool is Auth {
         ERC20 asset,
         address user,
         uint256 amount
-    ) internal view returns (bool) {}
+    ) internal view returns (bool) {
+        // Allocate memory to store the user's account liquidity.
+        AccountLiquidity memory liquidity;
+
+        // Retrieve the user's utilized assets.
+        ERC20[] memory utilized = userCollateral[user];
+
+        // Iterate through the user's utilized assets.
+        for (uint256 i = 0; i < utilized.length; i++) {
+            // Calculate the user's maximum borrowable value for this asset.
+            // balanceOfUnderlying(asset,user) * ethPrice * collateralFactor.
+            liquidity.maximumBorrowawble += balanceOfUnderlying(utilized[i], user)
+                .fmul(oracle.getUnderlyingPrice(utilized[i]), baseUnits[utilized[i]])
+                .fmul(configurations[utilized[i]].lendFactor, 1e18);
+
+            // Calculate the user's hypothetical borrow balance for this asset.
+            uint256 borrowBalance = utilized[i] == asset
+                ? borrowBalance(utilized[i], user) + amount
+                : borrowBalance(utilized[i], user);
+
+            // Add the user's borrow balance in this asset to their total borrow balance.
+            liquidity.borrowBalance += borrowBalance.fmul(
+                oracle.getUnderlyingPrice(utilized[i]),
+                baseUnits[utilized[i]]
+            );
+
+            // Multiply the user's borrow balance in this asset by the borrow factor.
+            liquidity.borrowBalancesTimesBorrowFactors += borrowBalance
+                .fmul(oracle.getUnderlyingPrice(utilized[i]), baseUnits[utilized[i]])
+                .fmul(configurations[utilized[i]].borrowFactor, 1e18);
+        }
+
+        // Calculate the user's actual borrowable value.
+        uint256 actualBorrowable = liquidity.borrowBalancesTimesBorrowFactors.fdiv(liquidity.borrowBalance, 1e18).fmul(
+            liquidity.maximumBorrowawble,
+            1e18
+        );
+
+        // Return whether the user's hypothetical borrow value is
+        // less than or equal to their borrowable value.
+        return liquidity.borrowBalance <= actualBorrowable;
+    }
 }
