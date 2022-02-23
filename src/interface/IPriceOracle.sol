@@ -5,6 +5,8 @@ import {ERC20} from "solmate/tokens/ERC20.sol";
 /// @title Price Oracle Interface.
 /// @author Jet Jadeja <jet@rari.capital>
 interface IPriceOracle {
-    /// @return The price of the given asset in terms of ETH.
+    /// @notice Get the price of an asset.
+    /// @param asset The address of the underlying asset.
+    /// @dev The underlying asset price is scaled by 1e18.
     function getUnderlyingPrice(ERC20 asset) external view returns (uint256);
 }
