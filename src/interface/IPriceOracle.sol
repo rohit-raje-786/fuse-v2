@@ -1,6 +1,7 @@
 pragma solidity 0.8.10;
 
-import {ERC20} from "solmate/tokens/ERC20.sol";
+// TODO: Should not have to import ERC20 from here.
+import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
 
 /// @title Price Oracle Interface.
 /// @author Jet Jadeja <jet@rari.capital>
