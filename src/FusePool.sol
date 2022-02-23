@@ -361,7 +361,7 @@ contract FusePool is Auth {
 
     /// @dev Maps underlying tokens to a number representing the amount of internal tokens
     /// used to represent user debt.
-    mapping(ERC20 => uint256) internal totalBorrows;
+    mapping(ERC20 => uint256) internal totalInternalDebt;
 
     /// @dev Store account liquidity details whilst avoiding stack depth errors.
     struct AccountLiquidity {
@@ -388,17 +388,21 @@ contract FusePool is Auth {
     }
 
     /// @dev Returns an exchange rate between underlying tokens and
-    /// the Fuse Pools internal balance values.
+    /// the Fuse Pools internal unit of debt.
     /// @param asset The address of the underlying token.
     function debtExchangeRate(ERC20 asset) internal view returns (uint256) {
-        // Retrieve the totalSupply of the internal balance token.
-        uint256 supply = totalSupplies[asset];
+        // TODO: total supply is stored in totalInternalDebt.
+        // To calculate total borrows, we need to do totalUnderlying() - availableLiquidity().
 
-        // If the totaly supply is 0, return 0.
-        if (supply == 0) return baseUnits[asset];
+        // Retrieve the totalSupply of the internal debt units.
+        uint256 internalDebtSupply = totalInternalDebt[asset];
 
-        // Return the exchangeRate.
-        return totalUnderlying(asset).fdiv(supply, baseUnits[asset]);
+        // If the totaly supply is 0, return 1.
+        if (internalDebtSupply == 0) return baseUnits[asset];
+
+        // Otherwise return the exchangeRate.
+        // This is calculated by doing (totalUnderlying() - availableLiquidity())/internalDebtSupply.
+        return (totalUnderlying(asset) - availableLiquidity(asset)).fdiv(internalDebtSupply, baseUnits[asset]);
     }
 
     /// @dev Evaluate whether a user is able to execute a borrow.
