@@ -44,12 +44,6 @@ contract FusePoolFactory is Auth {
     /// @dev The deployment information for the Fuse Pool.
     DeploymentInfo public deploymentInfo;
 
-    /// @dev The FusePool will use this variable to get its name.
-    /// In the FusePool constructor, the FusePool will retrieve this value
-    /// so that it can have an immutable name, without the need to pass it
-    /// in the constructor.
-    string public poolDeploymentName;
-
     /// @notice Emitted when a new Fuse Pool is deployed.
     /// @param pool The newly deployed Fuse Pool.
     /// @param deployer The address of the FusePool deployer.
@@ -57,13 +51,13 @@ contract FusePoolFactory is Auth {
 
     /// @notice Deploy a new Fuse Pool.
     /// @return pool The address of the newly deployed pool.
-    function deployFusePool(string memory name) external returns (FusePool pool, uint256 number) {
+    function deployFusePool(string memory name, IPriceOracle oracle) external returns (FusePool pool, uint256 number) {
         // Calculate pool ID.
         number = poolNumber + 1;
 
         // Update state variables.
         poolNumber = number;
-        poolDeploymentName = name;
+        deploymentInfo = DeploymentInfo(name, oracle);
 
         // Deploy the Fuse Pool using the CREATE2 opcode.
         pool = new FusePool{salt: bytes32(number)}();
