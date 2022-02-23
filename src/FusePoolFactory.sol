@@ -2,6 +2,8 @@
 pragma solidity 0.8.10;
 
 import {FusePool} from "./FusePool.sol";
+import {IPriceOracle} from "./interface/IPriceOracle.sol";
+
 import {Auth, Authority} from "solmate-next/auth/Auth.sol";
 import {Bytes32AddressLib} from "solmate/utils/Bytes32AddressLib.sol";
 
@@ -28,6 +30,19 @@ contract FusePoolFactory is Auth {
     /// @notice A counter indicating how many Fuse Pools have been deployed.
     /// @dev This is used to generate the Fuse Pool ID.
     uint256 public poolNumber;
+
+    /// @dev When a new Fuse Pool is deployed, it will retrieve the items
+    /// stored in this struct. This enables the Fuse Pool to be deployed to
+    /// am address that does not require the name to determine.
+    struct DeploymentInfo {
+        /// @dev The name of the Fuse Pool.
+        string name;
+        /// @dev The address of the Fuse Pool.
+        IPriceOracle oracle;
+    }
+
+    /// @dev The deployment information for the Fuse Pool.
+    DeploymentInfo public deploymentInfo;
 
     /// @dev The FusePool will use this variable to get its name.
     /// In the FusePool constructor, the FusePool will retrieve this value
