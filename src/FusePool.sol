@@ -410,6 +410,8 @@ contract FusePool is Auth {
         address user,
         uint256 amount
     ) internal view returns (bool) {
+        // TODO: OPTIMIZE + CLEANUP
+
         // Allocate memory to store the user's account liquidity.
         AccountLiquidity memory liquidity;
 
@@ -425,18 +427,18 @@ contract FusePool is Auth {
                 .fmul(configurations[utilized[i]].lendFactor, 1e18);
 
             // Calculate the user's hypothetical borrow balance for this asset.
-            uint256 borrowBalance = utilized[i] == asset
+            uint256 hypotheticalBorrowBalance = utilized[i] == asset
                 ? borrowBalance(utilized[i], user) + amount
                 : borrowBalance(utilized[i], user);
 
             // Add the user's borrow balance in this asset to their total borrow balance.
-            liquidity.borrowBalance += borrowBalance.fmul(
+            liquidity.borrowBalance += hypotheticalBorrowBalance.fmul(
                 oracle.getUnderlyingPrice(utilized[i]),
                 baseUnits[utilized[i]]
             );
 
             // Multiply the user's borrow balance in this asset by the borrow factor.
-            liquidity.borrowBalancesTimesBorrowFactors += borrowBalance
+            liquidity.borrowBalancesTimesBorrowFactors += hypotheticalBorrowBalance
                 .fmul(oracle.getUnderlyingPrice(utilized[i]), baseUnits[utilized[i]])
                 .fmul(configurations[utilized[i]].borrowFactor, 1e18);
         }
