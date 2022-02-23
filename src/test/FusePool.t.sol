@@ -11,6 +11,9 @@ import {DSTest} from "ds-test/test.sol";
 
 import {IFlashBorrower} from "../interface/IFlashBorrower.sol";
 
+import {IPriceOracle} from "../interface/IPriceOracle.sol";
+import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
+
 import {MockERC4626} from "./mocks/MockERC4626.sol";
 import {MockFlashBorrower} from "./mocks/MockFlashBorrower.sol";
 import {MockERC20} from "solmate-next/test/utils/mocks/MockERC20.sol";
@@ -20,6 +23,7 @@ contract FusePoolTest is DSTest {
     // Used variables.
     FusePoolFactory factory;
     FusePool pool;
+    IPriceOracle oracle;
 
     MockERC20 underlying;
     MockERC4626 vault;
@@ -27,7 +31,8 @@ contract FusePoolTest is DSTest {
     function setUp() public {
         // Deploy contracts.
         factory = new FusePoolFactory(address(this), Authority(address(0)));
-        (pool, ) = factory.deployFusePool("Test Pool");
+        oracle = IPriceOracle(address(new MockPriceOracle()));
+        (pool, ) = factory.deployFusePool("Test Pool", oracle);
 
         underlying = new MockERC20("Test Underlying", "TST", 18);
         vault = new MockERC4626(underlying, "Test Vault", "TST");
