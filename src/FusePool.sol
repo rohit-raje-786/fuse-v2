@@ -10,6 +10,7 @@ import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
 import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
 
 import {FusePoolFactory} from "./FusePoolFactory.sol";
+import {IPriceOracle} from "./interface/IPriceOracle.sol";
 import {IFlashBorrower} from "./interface/IFlashBorrower.sol";
 
 /// @title Fuse Pool
@@ -27,6 +28,9 @@ contract FusePool is Auth {
     /// @notice The name of the Fuse Pool.
     string public name;
 
+    /// @notice The address of the FusePool oracle.
+    IPriceOracle public oracle;
+
     /// @notice Creates a new FusePool.
     /// @dev Retrieves the pool name from the FusePoolFactory state.
     /// This enables us to have a deterministic address that does not require
@@ -34,7 +38,7 @@ contract FusePool is Auth {
     constructor() Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority()) {
         // Retrieve the name from the FusePoolFactory
         // and set it as the name of the FusePool.
-        name = FusePoolFactory(msg.sender).poolDeploymentName();
+        (name, oracle) = FusePoolFactory(msg.sender).deploymentInfo();
     }
 
     /*///////////////////////////////////////////////////////////////
