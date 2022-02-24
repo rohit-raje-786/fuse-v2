@@ -309,10 +309,33 @@ contract FusePool is Auth {
         return vaults[asset].balanceOfUnderlying(address(this));
     }
 
+    /*///////////////////////////////////////////////////////////////
+                        INTEREST ACCRUAL LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Store the block number of the last interest accrual for each asset.
+    mapping(ERC20 => uint256) internal lastInterestAccrual;
+
     /// @dev Accrue interest for a certain asset.
     /// Calling this function will increase value returned by
     /// totalBorrows() for that asset.
-    function accrueInterest(ERC20 asset) internal {}
+    function accrueInterest(ERC20 asset) internal {
+        // TODO: OPTIMIZE
+        // Ensure the IRM has been set.
+        require(address(interestRateModel) != address(0), "INTEREST_RATE_MODEL_NOT_SET");
+
+        // Retrieve the per-block interest rate from the IRM.
+        uint256 interestRate = interestRateModel.getBorrowRate(totalUnderlying(asset), cachedTotalBorrows[asset], 0);
+
+        // Calculate the block number delta between the last accrual and the current block.
+        uint256 blockDelta = block.number - lastInterestAccrual[asset];
+
+        // Calculate the interest accumulator.
+        uint256 interestAccumulator = interestRate.fpow(blockDelta, 1e18);
+
+        // Accrue interest.
+        cachedTotalBorrows[asset] = cachedTotalBorrows[asset].fmul(interestAccumulator, 1e18);
+    }
 
     /*///////////////////////////////////////////////////////////////
                        COLLATERALIZATION LOGIC
