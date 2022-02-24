@@ -5,7 +5,7 @@ import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
 
 /// @title Price Oracle Interface.
 /// @author Jet Jadeja <jet@rari.capital>
-interface IPriceOracle {
+interface PriceOracle {
     /// @notice Get the price of an asset.
     /// @param asset The address of the underlying asset.
     /// @dev The underlying asset price is scaled by 1e18.
