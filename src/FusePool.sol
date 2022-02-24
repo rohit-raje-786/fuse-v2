@@ -67,12 +67,12 @@ contract FusePool is Auth {
 
     /// @notice Emitted when an InterestRateModel is changed.
     /// @param user The authorized user who triggered the change.
-    /// @param asset The address of the underlying token whose IRM was modified.
+    /// @param asset The underlying asset whose IRM was modified.
     /// @param newInterestRateModel The new IRM address.
     event InterestRateModelUpdated(address user, ERC20 asset, InterestRateModel newInterestRateModel);
 
     /// @notice Sets a new Interest Rate Model for a specfic asset.
-    /// @param asset The address of the underlying token.
+    /// @param asset The underlying asset.
     /// @param newInterestRateModel The new IRM address.
     function setInterestRateModel(ERC20 asset, InterestRateModel newInterestRateModel) external requiresAuth {
         // Update the asset's Interest Rate Model.
@@ -80,5 +80,75 @@ contract FusePool is Auth {
 
         // Emit the event.
         emit InterestRateModelUpdated(msg.sender, asset, newInterestRateModel);
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                          ASSET CONFIGURATION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Maps underlying tokens to the ERC4626 vaults where they are held.
+    mapping(ERC20 => ERC4626) public vaults;
+
+    /// @notice Maps underlying tokens to their configurations.
+    mapping(ERC20 => Configuration) public configurations;
+
+    /// @notice Maps underlying assets to their base units.
+    /// 10**asset.decimals().
+    mapping(ERC20 => uint256) public baseUnits;
+
+    /// @notice Emitted when a new asset is added to the FusePool.
+    /// @param user The authorized user who triggered the change.
+    /// @param asset The underlying asset.
+    /// @param vault The ERC4626 vault where the underlying tokens will be held.
+    /// @param configuration The lend/borrow factors for the asset.
+    event AssetConfigured(
+        address indexed user,
+        ERC20 indexed asset,
+        ERC4626 indexed vault,
+        Configuration configuration
+    );
+
+    /// @notice Emitted when an asset configuration is updated.
+    /// @param user The authorized user who triggered the change.
+    /// @param asset The underlying asset.
+    /// @param newConfiguration The new lend/borrow factors for the asset.
+    event AssetConfigurationUpdated(address indexed user, ERC20 indexed asset, Configuration newConfiguration);
+
+    /// @dev Asset configuration struct.
+    struct Configuration {
+        uint256 lendFactor;
+        uint256 borrowFactor;
+    }
+
+    /// @notice Adds a new asset to the Fuse Pool.
+    /// @param asset The underlying asset.
+    /// @param vault The ERC4626 vault where the underlying tokens will be held.
+    /// @param configuration The lend/borrow factors for the asset.
+    function configureAsset(
+        ERC20 asset,
+        ERC4626 vault,
+        Configuration memory configuration
+    ) external requiresAuth {
+        // Ensure that this asset has not been configured.
+        require(address(vaults[asset]) == address(0), "ASSET_ALREADY_CONFIGURED");
+
+        // Configure the asset.
+        vaults[asset] = vault;
+        configurations[asset] = configuration;
+        baseUnits[asset] = 10**asset.decimals();
+
+        // Emit the event.
+        emit AssetConfigured(msg.sender, asset, vault, configuration);
+    }
+
+    /// @notice Updates the lend/borrow factors of an asset.
+    /// @param asset The underlying asset.
+    /// @param newConfiguration The new lend/borrow factors for the asset.
+    function updateConfiguration(ERC20 asset, Configuration memory newConfiguration) external requiresAuth {
+        // Update the asset configuration.
+        configurations[asset] = newConfiguration;
+
+        // Emit the event.
+        emit AssetConfigurationUpdated(msg.sender, asset, newConfiguration);
     }
 }
