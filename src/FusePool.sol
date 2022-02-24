@@ -295,6 +295,13 @@ contract FusePool is Auth {
         return vaults[asset].balanceOfUnderlying(address(this));
     }
 
+    /// @dev Accrue interest for a certain asset.
+    /// Calling this function will increase value returned by 
+    /// totalBorrows() for that asset.
+    function accrueInterest(ERC20 asset) internal {
+        
+    }
+
     /*///////////////////////////////////////////////////////////////
                        COLLATERALIZATION LOGIC
     //////////////////////////////////////////////////////////////*/
@@ -353,6 +360,10 @@ contract FusePool is Auth {
     /*///////////////////////////////////////////////////////////////
                   INTERNAL BORROW/REPAYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
+
+    /// @dev Maps assets to a cached total borrow amount. 
+    /// These values are only changed on borrows and repayments.
+    mapping(ERC20 => uint256) public cachedTotalBorrows;
 
     /// @dev Internal accounting mechanism for debt.
     /// Maps ERC20 tokens to a map of internal borrow balances.
