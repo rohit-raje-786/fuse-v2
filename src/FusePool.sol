@@ -57,4 +57,28 @@ contract FusePool is Auth {
         // Emit the event.
         emit OracleUpdated(msg.sender, newOracle);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                          IRM CONFIGURATION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Maps ERC20 token addresses to their respective Interest Rate Model.
+    mapping(ERC20 => InterestRateModel) public interestRateModels;
+
+    /// @notice Emitted when an InterestRateModel is changed.
+    /// @param user The authorized user who triggered the change.
+    /// @param asset The address of the underlying token whose IRM was modified.
+    /// @param newInterestRateModel The new IRM address.
+    event InterestRateModelUpdated(address user, ERC20 asset, InterestRateModel newInterestRateModel);
+
+    /// @notice Sets a new Interest Rate Model for a specfic asset.
+    /// @param asset The address of the underlying token.
+    /// @param newInterestRateModel The new IRM address.
+    function setInterestRateModel(ERC20 asset, InterestRateModel newInterestRateModel) external requiresAuth {
+        // Update the asset's Interest Rate Model.
+        interestRateModels[asset] = newInterestRateModel;
+
+        // Emit the event.
+        emit InterestRateModelUpdated(msg.sender, asset, newInterestRateModel);
+    }
 }
