@@ -9,9 +9,9 @@ import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
 import {Authority} from "solmate-next/auth/Auth.sol";
 import {DSTest} from "ds-test/test.sol";
 
-import {IFlashBorrower} from "../interface/IFlashBorrower.sol";
+import {FlashBorrower} from "../interface/FlashBorrower.sol";
 
-import {IPriceOracle} from "../interface/IPriceOracle.sol";
+import {PriceOracle} from "../interface/PriceOracle.sol";
 import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
 
 import {MockERC4626} from "./mocks/MockERC4626.sol";
@@ -23,7 +23,7 @@ contract FusePoolTest is DSTest {
     // Used variables.
     FusePoolFactory factory;
     FusePool pool;
-    IPriceOracle oracle;
+    PriceOracle oracle;
 
     MockERC20 underlying;
     MockERC4626 vault;
@@ -31,7 +31,7 @@ contract FusePoolTest is DSTest {
     function setUp() public {
         // Deploy contracts.
         factory = new FusePoolFactory(address(this), Authority(address(0)));
-        oracle = IPriceOracle(address(new MockPriceOracle()));
+        oracle = PriceOracle(address(new MockPriceOracle()));
         (pool, ) = factory.deployFusePool("Test Pool", oracle);
 
         underlying = new MockERC20("Test Underlying", "TST", 18);
@@ -107,7 +107,7 @@ contract FusePoolTest is DSTest {
         bytes memory data = abi.encode(address(underlying));
 
         // Call a flash loan.
-        pool.flashLoan(IFlashBorrower(address(borrower)), data, underlying, 1e18);
+        pool.flashLoan(FlashBorrower(address(borrower)), data, underlying, 1e18);
     }
 
     // Mint and approve tokens.

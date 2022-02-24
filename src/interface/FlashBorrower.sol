@@ -3,7 +3,7 @@ pragma solidity 0.8.10;
 
 /// @title Flash Borrower Interface.
 /// @dev Interface for the borrower of a flash loan.
-interface IFlashBorrower {
+interface FlashBorrower {
     /// @dev Called when a flash loan is created.
     function execute(uint256 amount, bytes memory data) external;
 }

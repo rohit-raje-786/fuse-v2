@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity 0.8.10;
 
+import {FusePoolFactory} from "./FusePoolFactory.sol";
+
 import {ERC4626} from "solmate-next/mixins/ERC4626.sol";
 import {Auth, Authority} from "solmate-next/auth/Auth.sol";
 
@@ -9,9 +11,9 @@ import {ERC20, SafeTransferLib} from "solmate-next/utils/SafeTransferLib.sol";
 import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
 import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
 
-import {FusePoolFactory} from "./FusePoolFactory.sol";
-import {IPriceOracle} from "./interface/IPriceOracle.sol";
-import {IFlashBorrower} from "./interface/IFlashBorrower.sol";
+import {InterestRateModel} from "./interface/InterestRateModule.sol";
+import {PriceOracle} from "./interface/PriceOracle.sol";
+import {FlashBorrower} from "./interface/FlashBorrower.sol";
 
 /// @title Fuse Pool
 /// @author Jet Jadeja <jet@rari.capital>
@@ -29,7 +31,7 @@ contract FusePool is Auth {
     string public name;
 
     /// @notice The address of the FusePool oracle.
-    IPriceOracle public oracle;
+    PriceOracle public oracle;
 
     /// @notice Creates a new FusePool.
     /// @dev Retrieves the pool name from the FusePoolFactory state.
@@ -92,6 +94,12 @@ contract FusePool is Auth {
         // Emit the event.
         emit AssetAdded(asset, vault);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                        RATE MODEL CONFIGURATION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev The address of the Interest Rate Model.
 
     /*///////////////////////////////////////////////////////////////
                        DEPOSIT/WITHDRAW INTERFACE
@@ -219,7 +227,7 @@ contract FusePool is Auth {
 
     /// @notice Execute a Flash Loan.
     function flashLoan(
-        IFlashBorrower borrower,
+        FlashBorrower borrower,
         bytes memory data,
         ERC20 asset,
         uint256 amount
@@ -296,11 +304,9 @@ contract FusePool is Auth {
     }
 
     /// @dev Accrue interest for a certain asset.
-    /// Calling this function will increase value returned by 
+    /// Calling this function will increase value returned by
     /// totalBorrows() for that asset.
-    function accrueInterest(ERC20 asset) internal {
-        
-    }
+    function accrueInterest(ERC20 asset) internal {}
 
     /*///////////////////////////////////////////////////////////////
                        COLLATERALIZATION LOGIC
@@ -361,7 +367,7 @@ contract FusePool is Auth {
                   INTERNAL BORROW/REPAYMENT LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Maps assets to a cached total borrow amount. 
+    /// @dev Maps assets to a cached total borrow amount.
     /// These values are only changed on borrows and repayments.
     mapping(ERC20 => uint256) public cachedTotalBorrows;
 

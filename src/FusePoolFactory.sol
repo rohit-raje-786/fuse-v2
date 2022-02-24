@@ -2,7 +2,7 @@
 pragma solidity 0.8.10;
 
 import {FusePool} from "./FusePool.sol";
-import {IPriceOracle} from "./interface/IPriceOracle.sol";
+import {PriceOracle} from "./interface/PriceOracle.sol";
 
 import {Auth, Authority} from "solmate-next/auth/Auth.sol";
 import {Bytes32AddressLib} from "solmate/utils/Bytes32AddressLib.sol";
@@ -38,7 +38,7 @@ contract FusePoolFactory is Auth {
         /// @dev The name of the Fuse Pool.
         string name;
         /// @dev The address of the Fuse Pool.
-        IPriceOracle oracle;
+        PriceOracle oracle;
     }
 
     /// @dev The deployment information for the Fuse Pool.
@@ -51,7 +51,7 @@ contract FusePoolFactory is Auth {
 
     /// @notice Deploy a new Fuse Pool.
     /// @return pool The address of the newly deployed pool.
-    function deployFusePool(string memory name, IPriceOracle oracle) external returns (FusePool pool, uint256 number) {
+    function deployFusePool(string memory name, PriceOracle oracle) external returns (FusePool pool, uint256 number) {
         // Calculate pool ID.
         number = poolNumber + 1;
 

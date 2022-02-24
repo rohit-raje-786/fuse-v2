@@ -4,7 +4,7 @@ pragma solidity 0.8.10;
 import {FusePool, FusePoolFactory} from "../FusePoolFactory.sol";
 
 import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
-import {IPriceOracle} from "../interface/IPriceOracle.sol";
+import {PriceOracle} from "../interface/PriceOracle.sol";
 
 import {Authority} from "solmate-next/auth/Auth.sol";
 import {DSTestPlus} from "solmate-next/test/utils/DSTestPlus.sol";
@@ -13,16 +13,16 @@ import {DSTestPlus} from "solmate-next/test/utils/DSTestPlus.sol";
 contract FusePoolFactoryTest is DSTestPlus {
     // Used variables.
     FusePoolFactory factory;
-    IPriceOracle oracle;
+    PriceOracle oracle;
 
     function setUp() public {
         // Deploy Fuse Pool Factory.
         factory = new FusePoolFactory(address(this), Authority(address(0)));
-        oracle = IPriceOracle(address(new MockPriceOracle()));
+        oracle = PriceOracle(address(new MockPriceOracle()));
     }
 
     function testDeployFusePool() public {
-        (FusePool pool, uint256 id) = factory.deployFusePool("Test Pool", IPriceOracle(address(oracle)));
+        (FusePool pool, uint256 id) = factory.deployFusePool("Test Pool", PriceOracle(address(oracle)));
 
         // Assertions.
         assertEq(address(pool), address(factory.getPoolFromNumber(id)));
