@@ -11,7 +11,7 @@ import {ERC20, SafeTransferLib} from "solmate-next/utils/SafeTransferLib.sol";
 import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
 import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
 
-import {InterestRateModel} from "./interface/InterestRateModule.sol";
+import {InterestRateModel} from "./interface/InterestRateModel.sol";
 import {PriceOracle} from "./interface/PriceOracle.sol";
 import {FlashBorrower} from "./interface/FlashBorrower.sol";
 
@@ -96,10 +96,16 @@ contract FusePool is Auth {
     }
 
     /*///////////////////////////////////////////////////////////////
-                        RATE MODEL CONFIGURATION
+                   INTEREST RATE MODEL CONFIGURATION
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev The address of the Interest Rate Model.
+    /// @notice The address of the Interest Rate Model.
+    InterestRateModel public interestRateModel;
+
+    /// @notice Set the address of the IRM
+    function setInterestRateModel(InterestRateModel newInterestRateModel) external {
+        interestRateModel = newInterestRateModel;
+    }
 
     /*///////////////////////////////////////////////////////////////
                        DEPOSIT/WITHDRAW INTERFACE
