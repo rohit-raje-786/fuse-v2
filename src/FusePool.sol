@@ -50,7 +50,7 @@ contract FusePool is Auth {
 
     /// @notice Sets a new oracle contract.
     /// @param newOracle The address of the new oracle.
-    function setOracle(PriceOracle newOracle) external requiresAuth {
+    function setOracle(PriceOracle newOracle) public requiresAuth {
         // Update the oracle.
         oracle = newOracle;
 
@@ -74,7 +74,7 @@ contract FusePool is Auth {
     /// @notice Sets a new Interest Rate Model for a specfic asset.
     /// @param asset The underlying asset.
     /// @param newInterestRateModel The new IRM address.
-    function setInterestRateModel(ERC20 asset, InterestRateModel newInterestRateModel) external requiresAuth {
+    function setInterestRateModel(ERC20 asset, InterestRateModel newInterestRateModel) public requiresAuth {
         // Update the asset's Interest Rate Model.
         interestRateModels[asset] = newInterestRateModel;
 
@@ -128,7 +128,7 @@ contract FusePool is Auth {
         ERC20 asset,
         ERC4626 vault,
         Configuration memory configuration
-    ) external requiresAuth {
+    ) public requiresAuth {
         // Ensure that this asset has not been configured.
         require(address(vaults[asset]) == address(0), "ASSET_ALREADY_CONFIGURED");
 
@@ -144,7 +144,7 @@ contract FusePool is Auth {
     /// @notice Updates the lend/borrow factors of an asset.
     /// @param asset The underlying asset.
     /// @param newConfiguration The new lend/borrow factors for the asset.
-    function updateConfiguration(ERC20 asset, Configuration memory newConfiguration) external requiresAuth {
+    function updateConfiguration(ERC20 asset, Configuration memory newConfiguration) public requiresAuth {
         // Update the asset configuration.
         configurations[asset] = newConfiguration;
 
