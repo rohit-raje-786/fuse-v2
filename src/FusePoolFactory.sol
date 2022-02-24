@@ -31,18 +31,10 @@ contract FusePoolFactory is Auth {
     /// @dev This is used to generate the Fuse Pool ID.
     uint256 public poolNumber;
 
-    /// @dev When a new Fuse Pool is deployed, it will retrieve the items
-    /// stored in this struct. This enables the Fuse Pool to be deployed to
-    /// am address that does not require the name to determine.
-    struct DeploymentInfo {
-        /// @dev The name of the Fuse Pool.
-        string name;
-        /// @dev The address of the Fuse Pool.
-        PriceOracle oracle;
-    }
-
-    /// @dev The deployment information for the Fuse Pool.
-    DeploymentInfo public deploymentInfo;
+    /// @dev When a new Fuse Pool is deployed, it will retrieve the
+    /// value stored here. This enables the Fuse Pool to be deployed to
+    /// an address that does not require the name to determine.
+    string public poolDeploymentName;
 
     /// @notice Emitted when a new Fuse Pool is deployed.
     /// @param pool The newly deployed Fuse Pool.
@@ -57,13 +49,16 @@ contract FusePoolFactory is Auth {
 
         // Update state variables.
         poolNumber = number;
-        deploymentInfo = DeploymentInfo(name, oracle);
+        poolDeploymentName = name;
 
         // Deploy the Fuse Pool using the CREATE2 opcode.
         pool = new FusePool{salt: bytes32(number)}();
 
         // Emit the event.
         emit PoolDeployed(number, pool, msg.sender);
+
+        // Reset the deployment name.
+        delete poolDeploymentName;
     }
 
     /*///////////////////////////////////////////////////////////////
