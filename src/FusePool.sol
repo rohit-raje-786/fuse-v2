@@ -4,7 +4,11 @@ pragma solidity 0.8.10;
 import {FusePoolFactory} from "./FusePoolFactory.sol";
 
 import {ERC20} from "solmate-next/tokens/ERC20.sol";
+import {ERC4626} from "solmate-next/mixins/ERC4626.sol";
 import {Auth, Authority} from "solmate-next/auth/Auth.sol";
+
+import {PriceOracle} from "./interface/PriceOracle.sol";
+import {InterestRateModel} from "./interface/InterestRateModel.sol";
 
 import {SafeTransferLib} from "solmate-next/utils/SafeTransferLib.sol";
 import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
@@ -30,5 +34,27 @@ contract FusePool is Auth {
     constructor() Auth(Auth(msg.sender).owner(), Auth(msg.sender).authority()) {
         // Retrieve the name from the factory contract.
         name = FusePoolFactory(msg.sender).poolDeploymentName();
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                          ORACLE CONFIGURATION
+    //////////////////////////////////////////////////////////////*/
+
+    /// @notice Address of the price oracle contract.
+    PriceOracle public oracle;
+
+    /// @notice Emitted when the price oracle is changed.
+    /// @param user The authorized user who triggered the change.
+    /// @param newOracle The new price oracle address.
+    event OracleUpdated(address indexed user, PriceOracle indexed newOracle);
+
+    /// @notice Sets a new oracle contract.
+    /// @param newOracle The address of the new oracle.
+    function setOracle(PriceOracle newOracle) external requiresAuth {
+        // Update the oracle.
+        oracle = newOracle;
+
+        // Emit the event.
+        emit OracleUpdated(msg.sender, newOracle);
     }
 }
