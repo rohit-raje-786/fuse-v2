@@ -9,6 +9,7 @@ import {Auth, Authority} from "solmate-next/auth/Auth.sol";
 
 import {PriceOracle} from "./interface/PriceOracle.sol";
 import {InterestRateModel} from "./interface/InterestRateModel.sol";
+import {FlashBorrower} from "./interface/FlashBorrower.sol";
 
 import {SafeTransferLib} from "solmate-next/utils/SafeTransferLib.sol";
 import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
@@ -50,7 +51,7 @@ contract FusePool is Auth {
 
     /// @notice Sets a new oracle contract.
     /// @param newOracle The address of the new oracle.
-    function setOracle(PriceOracle newOracle) public requiresAuth {
+    function setOracle(PriceOracle newOracle) external requiresAuth {
         // Update the oracle.
         oracle = newOracle;
 
@@ -74,7 +75,7 @@ contract FusePool is Auth {
     /// @notice Sets a new Interest Rate Model for a specfic asset.
     /// @param asset The underlying asset.
     /// @param newInterestRateModel The new IRM address.
-    function setInterestRateModel(ERC20 asset, InterestRateModel newInterestRateModel) public requiresAuth {
+    function setInterestRateModel(ERC20 asset, InterestRateModel newInterestRateModel) external requiresAuth {
         // Update the asset's Interest Rate Model.
         interestRateModels[asset] = newInterestRateModel;
 
@@ -128,7 +129,7 @@ contract FusePool is Auth {
         ERC20 asset,
         ERC4626 vault,
         Configuration memory configuration
-    ) public requiresAuth {
+    ) external requiresAuth {
         // Ensure that this asset has not been configured.
         require(address(vaults[asset]) == address(0), "ASSET_ALREADY_CONFIGURED");
 
@@ -144,11 +145,113 @@ contract FusePool is Auth {
     /// @notice Updates the lend/borrow factors of an asset.
     /// @param asset The underlying asset.
     /// @param newConfiguration The new lend/borrow factors for the asset.
-    function updateConfiguration(ERC20 asset, Configuration memory newConfiguration) public requiresAuth {
+    function updateConfiguration(ERC20 asset, Configuration memory newConfiguration) external requiresAuth {
         // Update the asset configuration.
         configurations[asset] = newConfiguration;
 
         // Emit the event.
         emit AssetConfigurationUpdated(msg.sender, asset, newConfiguration);
     }
+
+    /*///////////////////////////////////////////////////////////////
+                       DEPOSIT/WITHDRAW INTERFACE
+    //////////////////////////////////////////////////////////////*/
+
+    function deposit(
+        ERC20 asset,
+        uint256 amount,
+        bool enable
+    ) external {}
+
+    function withdraw(
+        ERC20 asset,
+        uint256 amount,
+        bool disable
+    ) external {}
+
+    /*///////////////////////////////////////////////////////////////
+                      BORROW/REPAYMENT INTERFACE
+    //////////////////////////////////////////////////////////////*/
+
+    function borrow(ERC20 asset, uint256 amount) external {}
+
+    function repay(ERC20 asset, uint256 amount) external {}
+
+    /*///////////////////////////////////////////////////////////////
+                          FLASH BORROW INTERFACE
+    //////////////////////////////////////////////////////////////*/
+
+    function flashLoan(
+        ERC20 asset,
+        uint256 amount,
+        bool enable
+    ) external {}
+
+    /*///////////////////////////////////////////////////////////////
+                      COLLATERALIZATION INTERFACE
+    //////////////////////////////////////////////////////////////*/
+
+    mapping(address => ERC20[]) public userCollateral;
+    mapping(address => mapping(ERC20 => bool)) public enabledCollateral;
+
+    function enableAsset(ERC20 asset) public {}
+
+    function disableAsset(ERC20 asset) public {}
+
+    /*///////////////////////////////////////////////////////////////
+                        LIQUIDITY ACCOUNTING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    function totalUnderlying(ERC20 asset) public view returns (uint256) {}
+
+    function availableLiquidity(ERC20 asset) public view returns (uint256) {}
+
+    /*///////////////////////////////////////////////////////////////
+                        BALANCE ACCOUNTING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    mapping(ERC20 => mapping(address => uint256)) internal internalBalanceUnits;
+    mapping(ERC20 => uint256) internal totalInternalBalances;
+
+    function balanceOf(ERC20 asset, address user) public view returns (uint256) {}
+
+    function internalBalanceExchangeRate(ERC20) internal view returns (uint256) {}
+
+    /*///////////////////////////////////////////////////////////////
+                          DEBT ACCOUNTING LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    mapping(ERC20 => uint256) public cachedTotalBorrows;
+    mapping(ERC20 => mapping(address => uint256)) internal internalDebtUnits;
+    mapping(ERC20 => uint256) internal totalInternalDebt;
+
+    function borrowBalance(ERC20 asset, uint256 user) public view returns (uint256) {}
+
+    function internalDebtExchangeRate(ERC20) internal view returns (uint256) {}
+
+    /*///////////////////////////////////////////////////////////////
+                      BORROW ALLOWANCE CHECKS
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Store account liquidity details whilst avoiding stack depth errors.
+    struct AccountLiquidity {
+        // A user's total borrow balance in ETH.
+        uint256 borrowBalance;
+        // A user's maximum borrowable value. If their borrowed value
+        // reaches this point, they will get liquidated.
+        uint256 maximumBorrowawble;
+        // A user's borrow balance in ETH multiplied by the average borrow factor.
+        // TODO: need a better name for this
+        uint256 borrowBalancesTimesBorrowFactors;
+        // A user's actual borrowable value. If their borrowed value
+        // is greater than or equal to this number, the system will
+        // not allow them to borrow any more assets.
+        uint256 actualBorrowable;
+    }
+
+    function canBorrow(
+        ERC20 asset,
+        address user,
+        uint256 amount
+    ) internal view returns (bool) {}
 }
