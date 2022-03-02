@@ -202,9 +202,21 @@ contract FusePool is Auth {
                         LIQUIDITY ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function totalUnderlying(ERC20 asset) public view returns (uint256) {}
+    /// @notice Returns the total amount of underlying tokens held by and owed to the Fuse Pool.
+    /// @param asset The underlying asset.
+    function totalUnderlying(ERC20 asset) public view returns (uint256) {
+        // TODO: account for funds owed to the contract.
 
-    function availableLiquidity(ERC20 asset) public view returns (uint256) {}
+        // Return the Fuse Pool's underlying balance in the designated ERC4626 vault.
+        return vaults[asset].balanceOfUnderlying(address(this));
+    }
+
+    /// @notice Returns the amount of underlying tokens held in this contract.
+    /// @param asset The underlying asset.
+    function availableLiquidity(ERC20 asset) public view returns (uint256) {
+        // Return the Fuse Pool's underlying balance in the designated ERC4626 vault.
+        return vaults[asset].balanceOfUnderlying(address(this));
+    }
 
     /*///////////////////////////////////////////////////////////////
                         BALANCE ACCOUNTING LOGIC
