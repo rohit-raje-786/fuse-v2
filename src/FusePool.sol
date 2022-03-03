@@ -219,10 +219,16 @@ contract FusePool is Auth {
                           FLASH BORROW INTERFACE
     //////////////////////////////////////////////////////////////*/
 
-    function flashLoan(
+    /// @notice Emitted after a successful flash borrow.
+    /// @param from The address that triggered the flash borrow.
+    /// @param borrower The borrower.
+    event FlashBorrow(address indexed from, FlashBorrower indexed borrower, ERC20 indexed asset, uint256 amount);
+
+    function flashBorrow(
+        FlashBorrower borrower,
+        bytes memory data,
         ERC20 asset,
-        uint256 amount,
-        bool enable
+        uint256 amount
     ) external {}
 
     /*///////////////////////////////////////////////////////////////
@@ -260,23 +266,47 @@ contract FusePool is Auth {
                         BALANCE ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    mapping(ERC20 => mapping(address => uint256)) internal internalBalanceUnits;
+    /// @dev Maps assets to user addresses to their balances, which are not denominated in underlying.
+    /// Instead, these values are denominated in internal balance units, which internally account
+    /// for user balances, increasing in value as the Fuse Pool earns more interest.
+    mapping(ERC20 => mapping(address => uint256)) internal internalBalances;
+
+    /// @dev Maps assets to the total number of internal balance units "distributed" amongst lenders.
     mapping(ERC20 => uint256) internal totalInternalBalances;
 
+    /// @notice Returns the underlying balance of an address.
+    /// @param asset The underlying asset.
+    /// @param user The user to get the underlying balance of.
     function balanceOf(ERC20 asset, address user) public view returns (uint256) {}
 
+    /// @dev Returns the exchange rate between underlying tokens and internal balance units.
+    /// In other words, this function returns the value of one internal balance unit, denominated in underlying.
     function internalBalanceExchangeRate(ERC20) internal view returns (uint256) {}
 
     /*///////////////////////////////////////////////////////////////
                           DEBT ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    mapping(ERC20 => uint256) public cachedTotalBorrows;
-    mapping(ERC20 => mapping(address => uint256)) internal internalDebtUnits;
+    /// @dev Maps assets to the total number of underlying loaned out to borrowers.
+    /// Note that these values are not updated, instead recording the total borrow amount
+    /// each time a borrow/repayment occurs.
+    mapping(ERC20 => uint256) internal cachedTotalBorrows;
+
+    /// @dev Maps assets to user addresses to their debt, which are not denominated in underlying.
+    /// Instead, these values are denominated in internal debt units, which internally account
+    /// for user debt, increasing in value as the Fuse Pool earns more interest.
+    mapping(ERC20 => mapping(address => uint256)) internal internalDebt;
+
+    /// @dev Maps assets to the total number of internal debt units "distributed" amongst borrowers.
     mapping(ERC20 => uint256) internal totalInternalDebt;
 
+    /// @notice Returns the underlying borrow balance of an address.
+    /// @param asset The underlying asset.
+    /// @param user The user to get the underlying borrow balance of.
     function borrowBalance(ERC20 asset, uint256 user) public view returns (uint256) {}
 
+    /// @dev Returns the exchange rate between underlying tokens and internal debt units.
+    /// In other words, this function returns the value of one internal debt unit, denominated in underlying.
     function internalDebtExchangeRate(ERC20) internal view returns (uint256) {}
 
     /*///////////////////////////////////////////////////////////////
