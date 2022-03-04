@@ -274,6 +274,9 @@ contract FusePool is Auth {
     /// @param borrower The borrower.
     event FlashBorrow(address indexed from, FlashBorrower indexed borrower, ERC20 indexed asset, uint256 amount);
 
+    /// @notice Maps assets to the number of underlying being flash borrowed.
+    mapping(ERC20 => uint256) flashBorrowed;
+
     /// @notice Execute a flash loan. This code will fail is the funds
     /// are not returned to the contract by the end of the transaction.
     /// @param borrower The address of the FlashBorrower contract to call.
@@ -286,17 +289,26 @@ contract FusePool is Auth {
         ERC20 asset,
         uint256 amount
     ) external {
+        // Ensure that a flash borrow is not occuring in this asset.
+        require(flashBorrowed[asset] == 0, "FLASH_BORROW_IN_PROGRESS");
+
         // Store the available liquidity before the borrow.
         uint256 liquidity = availableLiquidity(asset);
 
         // Withdraw the amount from the Vault and trasnfer it to the borrower.
         vaults[asset].withdraw(address(borrower), amount);
 
+        // Update the flash borrow amount.
+        flashBorrowed[asset] = amount;
+
         // Call the borrower.execute function.
         borrower.execute(amount, data);
 
         // Ensure the sufficient amount has been returned.
         require(vaults[asset].balanceOfUnderlying(address(this)) + amount > liquidity, "AMOUNT_NOT_RETURNED");
+
+        // Reset the flash borrow amount.
+        delete flashBorrowed[asset];
 
         // Emit the event.
         emit FlashBorrow(msg.sender, borrower, asset, amount);
@@ -373,11 +385,8 @@ contract FusePool is Auth {
     /// @notice Returns the total amount of underlying tokens held by and owed to the Fuse Pool.
     /// @param asset The underlying asset.
     function totalUnderlying(ERC20 asset) public view returns (uint256) {
-        // TODO: account for funds owed to the contract.
-        // TODO: account for flashloaned tokens.
-
         // Return the Fuse Pool's underlying balance in the designated ERC4626 vault.
-        return vaults[asset].balanceOfUnderlying(address(this));
+        return availableLiquidity(asset) + totalBorrows(asset) + flashBorrowed[asset];
     }
 
     /// @notice Returns the amount of underlying tokens held in this contract.
