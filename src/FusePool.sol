@@ -274,12 +274,33 @@ contract FusePool is Auth {
     /// @param borrower The borrower.
     event FlashBorrow(address indexed from, FlashBorrower indexed borrower, ERC20 indexed asset, uint256 amount);
 
+    /// @notice Execute a flash loan. This code will fail is the funds
+    /// are not returned to the contract by the end of the transaction.
+    /// @param borrower The address of the FlashBorrower contract to call.
+    /// @param data The data to be passed to the FlashBorrower contract.
+    /// @param asset The underlying asset.
+    /// @param amount The amount to borrow.
     function flashBorrow(
         FlashBorrower borrower,
         bytes memory data,
         ERC20 asset,
         uint256 amount
-    ) external {}
+    ) external {
+        // Store the available liquidity before the borrow.
+        uint256 liquidity = availableLiquidity(asset);
+
+        // Withdraw the amount from the Vault and trasnfer it to the borrower.
+        vaults[asset].withdraw(address(borrower), amount);
+
+        // Call the borrower.execute function.
+        borrower.execute(amount, data);
+
+        // Ensure the sufficient amount has been returned.
+        require(vaults[asset].balanceOfUnderlying(address(this)) + amount > liquidity, "AMOUNT_NOT_RETURNED");
+
+        // Emit the event.
+        emit FlashBorrow(msg.sender, borrower, asset, amount);
+    }
 
     /*///////////////////////////////////////////////////////////////
                       COLLATERALIZATION INTERFACE
@@ -353,6 +374,7 @@ contract FusePool is Auth {
     /// @param asset The underlying asset.
     function totalUnderlying(ERC20 asset) public view returns (uint256) {
         // TODO: account for funds owed to the contract.
+        // TODO: account for flashloaned tokens.
 
         // Return the Fuse Pool's underlying balance in the designated ERC4626 vault.
         return vaults[asset].balanceOfUnderlying(address(this));
