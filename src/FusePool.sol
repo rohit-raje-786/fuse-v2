@@ -235,12 +235,49 @@ contract FusePool is Auth {
                       COLLATERALIZATION INTERFACE
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Maps users to an array of assets they have listed as collateral.
     mapping(address => ERC20[]) public userCollateral;
+
+    /// @notice Maps users to a map from assets to boleans indicating whether they have listed as collateral.
     mapping(address => mapping(ERC20 => bool)) public enabledCollateral;
 
-    function enableAsset(ERC20 asset) public {}
+    /// @notice Enable an asset as collateral.
+    function enableAsset(ERC20 asset) public {
+        // Ensure the user has not enabled this asset as collateral.
+        if (enabledCollateral[msg.sender][asset]) {
+            return;
+        }
 
-    function disableAsset(ERC20 asset) public {}
+        // Enable the asset as collateral.
+        userCollateral[msg.sender].push(asset);
+        enabledCollateral[msg.sender][asset] = true;
+    }
+
+    /// @notice Disable an asset as collateral.
+    function disableAsset(ERC20 asset) public {
+        // Ensure that the user is not borrowing this asset.
+        if (internalDebt[asset][msg.sender] > 0) return;
+
+        // Ensure the user has already enabled this asset as collateral.
+        if (!enabledCollateral[msg.sender][asset]) return;
+
+        // Remove the asset from the user's list of collateral.
+        for (uint256 i = 0; i < userCollateral[msg.sender].length; i++) {
+            if (userCollateral[msg.sender][i] == asset) {
+                // Copy the value of the last element in the array.
+                ERC20 last = userCollateral[msg.sender][userCollateral[msg.sender].length - 1];
+
+                // Remove the last element from the array.
+                delete userCollateral[msg.sender][userCollateral[msg.sender].length - 1];
+
+                // Replace the disabled asset with the new asset.
+                userCollateral[msg.sender][i] = last;
+            }
+        }
+
+        // Disable the asset as collateral.
+        enabledCollateral[msg.sender][asset] = false;
+    }
 
     /*///////////////////////////////////////////////////////////////
                         LIQUIDITY ACCOUNTING LOGIC
