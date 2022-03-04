@@ -235,6 +235,16 @@ contract FusePool is Auth {
                       COLLATERALIZATION INTERFACE
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Emitted after an asset has been collateralized.
+    /// @param from The address that triggered the enablement.
+    /// @param asset The underlying asset.
+    event AssetEnabled(address indexed from, ERC20 indexed asset);
+
+    /// @notice Emitted after an asset has been disabled.
+    /// @param from The address that triggered the disablement.
+    /// @param asset The underlying asset.
+    event AssetDisabled(address indexed from, ERC20 indexed asset);
+
     /// @notice Maps users to an array of assets they have listed as collateral.
     mapping(address => ERC20[]) public userCollateral;
 
@@ -251,6 +261,9 @@ contract FusePool is Auth {
         // Enable the asset as collateral.
         userCollateral[msg.sender].push(asset);
         enabledCollateral[msg.sender][asset] = true;
+
+        // Emit the event.
+        emit AssetEnabled(msg.sender, asset);
     }
 
     /// @notice Disable an asset as collateral.
@@ -277,6 +290,9 @@ contract FusePool is Auth {
 
         // Disable the asset as collateral.
         enabledCollateral[msg.sender][asset] = false;
+
+        // Emit the event.
+        emit AssetDisabled(msg.sender, asset);
     }
 
     /*///////////////////////////////////////////////////////////////
