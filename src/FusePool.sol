@@ -177,7 +177,33 @@ contract FusePool is Auth {
         ERC20 asset,
         uint256 amount,
         bool enable
-    ) external {}
+    ) external {
+        // Ensure the amount is valid.
+        require(amount > 0, "INVALID_AMOUNT");
+
+        // Calculate the amount of internal balance units to be stored.
+        uint256 shares = amount.fdiv(internalBalanceExchangeRate(asset), baseUnits[asset]);
+
+        // Modify the internal balance of the sender.
+        internalBalances[asset][msg.sender] += shares;
+
+        // Add to the asset's total internal supply.
+        totalInternalBalances[asset] += shares;
+
+        // Transfer underlying in from the user.
+        asset.safeTransferFrom(msg.sender, address(this), amount);
+
+        // Deposit the underlying tokens into the designated vault.
+        ERC4626 vault = vaults[asset];
+        asset.approve(address(vault), amount);
+        vault.deposit(address(this), amount);
+
+        // Enable the asset as collateral if `enable` is set to true.
+        if (enable) enableAsset(asset);
+
+        // Emit the event.
+        emit Deposit(msg.sender, asset, amount);
+    }
 
     /// @notice Withdraw underlying tokens from the Fuse Pool.
     /// @param asset The underlying asset.
@@ -187,7 +213,31 @@ contract FusePool is Auth {
         ERC20 asset,
         uint256 amount,
         bool disable
-    ) external {}
+    ) external {
+        // Ensure the amount is valid.
+        require(amount > 0, "AMOUNT_TOO_LOW");
+
+        // Calculate the amount of internal balance units to be subtracted.
+        uint256 shares = amount.fdiv(internalBalanceExchangeRate(asset), baseUnits[asset]);
+
+        // Modify the internal balance of the sender.
+        internalBalances[asset][msg.sender] -= shares;
+
+        // Subtract from the asset's total internal supply.
+        totalInternalBalances[asset] -= shares;
+
+        // Withdraw the underlying tokens from the designated vault.
+        vaults[asset].withdraw(address(this), amount);
+
+        // Transfer underlying to the user.
+        asset.safeTransfer(msg.sender, amount);
+
+        // If `disable` is set to true, disable the asset as collateral.
+        if (disable) disableAsset(asset);
+
+        // Emit the event.
+        emit Withdraw(msg.sender, asset, amount);
+    }
 
     /*///////////////////////////////////////////////////////////////
                       BORROW/REPAYMENT INTERFACE
