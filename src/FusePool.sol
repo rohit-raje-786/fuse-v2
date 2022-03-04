@@ -277,11 +277,23 @@ contract FusePool is Auth {
     /// @notice Returns the underlying balance of an address.
     /// @param asset The underlying asset.
     /// @param user The user to get the underlying balance of.
-    function balanceOf(ERC20 asset, address user) public view returns (uint256) {}
+    function balanceOf(ERC20 asset, address user) public view returns (uint256) {
+        // Multiply the user's internal balance units by the internal exchange rate of the asset.
+        return internalBalances[asset][user].fmul(internalBalanceExchangeRate(asset), baseUnits[asset]);
+    }
 
     /// @dev Returns the exchange rate between underlying tokens and internal balance units.
     /// In other words, this function returns the value of one internal balance unit, denominated in underlying.
-    function internalBalanceExchangeRate(ERC20) internal view returns (uint256) {}
+    function internalBalanceExchangeRate(ERC20 asset) internal view returns (uint256) {
+        // Retrieve the total internal balance supply.
+        uint256 totalInternalBalance = totalInternalBalances[asset];
+
+        // If it is 0, return an exchange rate of 1.
+        if (totalInternalBalance == 0) return baseUnits[asset];
+
+        // Otherwise, divide the total supplied underlying by the total internal balance units.
+        return totalUnderlying(asset).fdiv(totalInternalBalance, baseUnits[asset]);
+    }
 
     /*///////////////////////////////////////////////////////////////
                           DEBT ACCOUNTING LOGIC
@@ -300,14 +312,30 @@ contract FusePool is Auth {
     /// @dev Maps assets to the total number of internal debt units "distributed" amongst borrowers.
     mapping(ERC20 => uint256) internal totalInternalDebt;
 
+    /// @notice Returns the total amount of underlying tokens being loaned out to borrowers.
+    /// @param asset The underlying asset.
+    function totalBorrows(ERC20 asset) public view returns (uint256) {}
+
     /// @notice Returns the underlying borrow balance of an address.
     /// @param asset The underlying asset.
     /// @param user The user to get the underlying borrow balance of.
-    function borrowBalance(ERC20 asset, uint256 user) public view returns (uint256) {}
+    function borrowBalance(ERC20 asset, address user) public view returns (uint256) {
+        // Multiply the user's internal debt units by the internal debt exchange rate of the asset.
+        return internalDebt[asset][user].fmul(internalDebtExchangeRate(asset), baseUnits[asset]);
+    }
 
     /// @dev Returns the exchange rate between underlying tokens and internal debt units.
     /// In other words, this function returns the value of one internal debt unit, denominated in underlying.
-    function internalDebtExchangeRate(ERC20) internal view returns (uint256) {}
+    function internalDebtExchangeRate(ERC20 asset) internal view returns (uint256) {
+        // Retrieve the total debt balance supply.
+        uint256 totalInternalDebt = totalInternalDebt[asset];
+
+        // If it is 0, return an exchange rate of 1.
+        if (totalInternalDebt == 0) return baseUnits[asset];
+
+        // Otherwise, divide the total borrowed underlying by the total amount of internal debt units.
+        return totalBorrows(asset).fdiv(totalInternalDebt, baseUnits[asset]);
+    }
 
     /*///////////////////////////////////////////////////////////////
                       BORROW ALLOWANCE CHECKS
