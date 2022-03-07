@@ -198,7 +198,7 @@ contract FusePool is Auth {
         asset.approve(address(vault), amount);
         vault.deposit(address(this), amount);
 
-        // Enable the asset as collateral if `enable` is set to true.
+        // If `enable` is set to true, enable the asset as collateral.
         if (enable) enableAsset(asset);
 
         // Emit the event.
@@ -258,12 +258,51 @@ contract FusePool is Auth {
     /// @notice Borrow underlying tokens from the Fuse Pool.
     /// @param asset The underlying asset.
     /// @param amount The amount to borrow.
-    function borrow(ERC20 asset, uint256 amount) external {}
+    function borrow(ERC20 asset, uint256 amount) external {
+        // Ensure the amount is valid.
+        require(amount > 0, "AMOUNT_TOO_LOW");
+
+        // Ensure the caller is able to execute this borrow.
+        require(canBorrow(asset, msg.sender, amount));
+
+        // Calculate the amount of internal debt units to be stored.
+        uint256 debtUnits = amount.fdiv(internalDebtExchangeRate(asset), baseUnits[asset]);
+
+        // Update the internal borrow balance of the borrower.
+        internalDebt[asset][msg.sender] += debtUnits;
+
+        // Add to the asset's total internal debt.
+        totalInternalDebt[asset] += debtUnits;
+
+        // Transfer tokens to the borrower.
+        asset.transfer(msg.sender, amount);
+
+        // Emit the event.
+        emit Borrow(msg.sender, asset, amount);
+    }
 
     /// @notice Repay underlying tokens to the Fuse Pool.
     /// @param asset The underlying asset.
     /// @param amount The amount to repay.
-    function repay(ERC20 asset, uint256 amount) external {}
+    function repay(ERC20 asset, uint256 amount) external {
+        // Ensure the amount is valid.
+        require(amount > 0, "AMOUNT_TOO_LOW");
+
+        // Calculate the amount of internal debt units to be stored.
+        uint256 debtUnits = amount.fdiv(internalDebtExchangeRate(asset), baseUnits[asset]);
+
+        // Update the internal borrow balance of the borrower.
+        internalDebt[asset][msg.sender] -= debtUnits;
+
+        // Add to the asset's total internal debt.
+        totalInternalDebt[asset] -= debtUnits;
+
+        // Transfer tokens from the user.
+        asset.safeTransferFrom(msg.sender, address(this), amount);
+
+        // Emit the event.
+        emit Repay(msg.sender, asset, amount);
+    }
 
     /*///////////////////////////////////////////////////////////////
                           FLASH BORROW INTERFACE
