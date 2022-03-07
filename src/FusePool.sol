@@ -462,13 +462,13 @@ contract FusePool is Auth {
     /// In other words, this function returns the value of one internal debt unit, denominated in underlying.
     function internalDebtExchangeRate(ERC20 asset) internal view returns (uint256) {
         // Retrieve the total debt balance supply.
-        uint256 totalInternalDebt = totalInternalDebt[asset];
+        uint256 totalInternalDebtUnits = totalInternalDebt[asset];
 
         // If it is 0, return an exchange rate of 1.
-        if (totalInternalDebt == 0) return baseUnits[asset];
+        if (totalInternalDebtUnits == 0) return baseUnits[asset];
 
         // Otherwise, divide the total borrowed underlying by the total amount of internal debt units.
-        return totalBorrows(asset).fdiv(totalInternalDebt, baseUnits[asset]);
+        return totalBorrows(asset).fdiv(totalInternalDebtUnits, baseUnits[asset]);
     }
 
     /*///////////////////////////////////////////////////////////////
