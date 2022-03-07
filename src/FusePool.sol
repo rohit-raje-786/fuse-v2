@@ -433,11 +433,6 @@ contract FusePool is Auth {
                           DEBT ACCOUNTING LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    /// @dev Maps assets to the total number of underlying loaned out to borrowers.
-    /// Note that these values are not updated, instead recording the total borrow amount
-    /// each time a borrow/repayment occurs.
-    mapping(ERC20 => uint256) internal cachedTotalBorrows;
-
     /// @dev Maps assets to user addresses to their debt, which are not denominated in underlying.
     /// Instead, these values are denominated in internal debt units, which internally account
     /// for user debt, increasing in value as the Fuse Pool earns more interest.
@@ -445,10 +440,6 @@ contract FusePool is Auth {
 
     /// @dev Maps assets to the total number of internal debt units "distributed" amongst borrowers.
     mapping(ERC20 => uint256) internal totalInternalDebt;
-
-    /// @notice Returns the total amount of underlying tokens being loaned out to borrowers.
-    /// @param asset The underlying asset.
-    function totalBorrows(ERC20 asset) public view returns (uint256) {}
 
     /// @notice Returns the underlying borrow balance of an address.
     /// @param asset The underlying asset.
@@ -469,6 +460,59 @@ contract FusePool is Auth {
 
         // Otherwise, divide the total borrowed underlying by the total amount of internal debt units.
         return totalBorrows(asset).fdiv(totalInternalDebtUnits, baseUnits[asset]);
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                        INTEREST ACCRUAL LOGIC
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev Maps assets to the total number of underlying loaned out to borrowers.
+    /// Note that these values are not updated, instead recording the total borrow amount
+    /// each time a borrow/repayment occurs.
+    mapping(ERC20 => uint256) internal cachedTotalBorrows;
+
+    /// @dev Store the block number of the last interest accrual for each asset.
+    mapping(ERC20 => uint256) internal lastInterestAccrual;
+
+    /// @notice Returns the total amount of underlying tokens being loaned out to borrowers.
+    /// @param asset The underlying asset.
+    function totalBorrows(ERC20 asset) public view returns (uint256) {
+        // Retrieve the Interest Rate Model for this asset.
+        InterestRateModel interestRateModel = interestRateModels[asset];
+
+        // Ensure the IRM has been set.
+        require(address(interestRateModel) != address(0), "INTEREST_RATE_MODEL_NOT_SET");
+
+        // Calculate the FusePool's current underlying balance.
+        // We cannot use totalUnderlying() here, as it calls this function,
+        // leading to an infinite loop.
+        uint256 underlying = availableLiquidity(asset) + cachedTotalBorrows[asset] + flashBorrowed[asset];
+
+        // Retrieve the per-block interest rate from the IRM.
+        uint256 interestRate = interestRateModel.getBorrowRate(underlying, cachedTotalBorrows[asset], 0);
+
+        // Calculate the block number delta between the last accrual and the current block.
+        uint256 blockDelta = block.number - lastInterestAccrual[asset];
+
+        // If the delta is equal to the block number (a borrow/repayment has never occured)
+        // return a value of 0.
+        if (blockDelta == block.number) return 0;
+
+        // Calculate the interest accumulator.
+        uint256 interestAccumulator = interestRate.fpow(blockDelta, 1e18);
+
+        // Accrue interest.
+        return cachedTotalBorrows[asset].fmul(interestAccumulator, 1e18);
+    }
+
+    /// @dev Update the cached total borrow amount for a given asset.
+    /// @param asset The underlying asset.
+    function accrueInterest(ERC20 asset) internal {
+        // Set the cachedTotalBorrows to the total borrow amount.
+        cachedTotalBorrows[asset] = totalBorrows(asset);
+
+        // Update the block number of the last interest accrual.
+        lastInterestAccrual[asset] = block.number;
     }
 
     /*///////////////////////////////////////////////////////////////
