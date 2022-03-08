@@ -262,6 +262,10 @@ contract FusePool is Auth {
         // Ensure the amount is valid.
         require(amount > 0, "AMOUNT_TOO_LOW");
 
+        // Accrue interest.
+        // TODO: is this the right place to accrue interest?
+        accrueInterest(asset);
+
         // Ensure the caller is able to execute this borrow.
         require(canBorrow(asset, msg.sender, amount));
 
@@ -299,6 +303,10 @@ contract FusePool is Auth {
 
         // Transfer tokens from the user.
         asset.safeTransferFrom(msg.sender, address(this), amount);
+
+        // Accrue interest.
+        // TODO: is this the right place to accrue interest?
+        accrueInterest(asset);
 
         // Emit the event.
         emit Repay(msg.sender, asset, amount);
