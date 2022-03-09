@@ -582,6 +582,14 @@ contract FusePool is Auth {
         uint256 actualBorrowable;
     }
 
+    /// @dev Returns a boolean indicating whether a user is liquidatable.
+    /// @param user The user to check.
+    function userLiquidatable(address user) public view returns (bool) {
+        // Call canBorrow(), passing in a non-existant asset and a borrow amount of 0.
+        // This will just check the contract's current state.
+        return canBorrow(ERC20(address(0)), user, 0);
+    }
+
     /// @dev Identify whether a user is able to execute a borrow.
     /// @param asset The underlying asset.
     /// @param user The user to check.
