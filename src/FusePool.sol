@@ -582,6 +582,10 @@ contract FusePool is Auth {
         uint256 actualBorrowable;
     }
 
+    /// @dev Identify whether a user is able to execute a borrow.
+    /// @param asset The underlying asset.
+    /// @param user The user to check.
+    /// @param amount The amount of underlying to borrow.
     function canBorrow(
         ERC20 asset,
         address user,
