@@ -56,9 +56,8 @@ contract FusePoolTest is DSTestPlus {
                         DEPOSIT/WITHDRAWAL TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function testDeposit() public {
-        //amount = bound(amount, 1e5, 1e27);
-        uint256 amount = 1e18;
+    function testDeposit(uint256 amount) public {
+        amount = bound(amount, 1e5, 1e27);
 
         // Mint, approve, and deposit the asset.
         mintAndApprove(asset, amount);
@@ -70,12 +69,11 @@ contract FusePoolTest is DSTestPlus {
         assertEq(pool.totalUnderlying(asset), amount, "Incorrect Total Underlying");
     }
 
-    function testWithdrawal() public {
-        uint256 amount = 1e18;
+    function testWithdrawal(uint256 amount) public {
         amount = bound(amount, 1e5, 1e27);
 
         // Mint, approve, and deposit the asset.
-        testDeposit();
+        testDeposit(amount);
 
         // Withdraw the asset.
         pool.withdraw(asset, amount, false);
