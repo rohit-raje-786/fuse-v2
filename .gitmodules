@@ -10,3 +10,6 @@
 [submodule "lib/solmate-next"]
 	path = lib/solmate-next
 	url = https://github.com/transmissions11/solmate-next
+[submodule "lib/forge-std"]
+	path = lib/forge-std
+	url = https://github.com/brockelmore/forge-std
