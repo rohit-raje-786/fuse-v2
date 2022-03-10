@@ -5,114 +5,144 @@ import {FusePool, FusePoolFactory} from "../FusePoolFactory.sol";
 
 // TODO: I should not have to import ERC20 from here.
 import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
+import {DSTestPlus} from "solmate/test/utils/DSTestPlus.sol";
 
 import {Authority} from "solmate-next/auth/Auth.sol";
 import {DSTest} from "ds-test/test.sol";
 
+import {PriceOracle} from "../interface/PriceOracle.sol";
+import {InterestRateModel} from "../interface/InterestRateModel.sol";
 import {FlashBorrower} from "../interface/FlashBorrower.sol";
 
-import {PriceOracle} from "../interface/PriceOracle.sol";
-import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
-
-import {MockERC4626} from "./mocks/MockERC4626.sol";
-import {MockFlashBorrower} from "./mocks/MockFlashBorrower.sol";
 import {MockERC20} from "solmate-next/test/utils/mocks/MockERC20.sol";
+import {MockERC4626} from "./mocks/MockERC4626.sol";
+import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
+import {MockFlashBorrower} from "./mocks/MockFlashBorrower.sol";
+import {MockInterestRateModel} from "./mocks/MockInterestRateModel.sol";
+
+import "forge-std/console.sol";
 
 /// @title Fuse Pool Factory Test Contract
-contract FusePoolTest is DSTest {
-    // Used variables.
+contract FusePoolTest is DSTestPlus {
+    /* Fuse Pool Contracts */
     FusePoolFactory factory;
     FusePool pool;
-    PriceOracle oracle;
 
-    MockERC20 underlying;
+    /* Mocks */
+    MockERC20 asset;
     MockERC4626 vault;
+    MockPriceOracle oracle;
+    MockFlashBorrower flashBorrower;
+    MockInterestRateModel interestRateModel;
 
     function setUp() public {
-        // Deploy contracts.
         factory = new FusePoolFactory(address(this), Authority(address(0)));
-        oracle = PriceOracle(address(new MockPriceOracle()));
-        (pool, ) = factory.deployFusePool("Test Pool", oracle);
+        (pool, ) = factory.deployFusePool("Fuse Pool Test");
 
-        underlying = new MockERC20("Test Underlying", "TST", 18);
-        vault = new MockERC4626(underlying, "Test Vault", "TST");
+        asset = new MockERC20("Test Token", "TEST", 18);
+        vault = new MockERC4626(ERC20(asset), "Test Token Vault", "TEST");
+        pool.configureAsset(asset, vault, FusePool.Configuration(0, 0));
 
-        pool.addAsset(ERC20(address(underlying)), vault, FusePool.Asset(0, 0));
+        pool.setInterestRateModel(asset, InterestRateModel(address(new MockInterestRateModel())));
+
+        oracle = new MockPriceOracle();
+        oracle.updatePrice(ERC20(asset), 1e18);
+        pool.setOracle(PriceOracle(address(oracle)));
     }
 
-    function testAddAsset() public {
-        assertEq(address(pool.vaults(underlying)), address(vault));
-        assertEq(pool.baseUnits(underlying), 1e18);
-    }
+    function testAddAsset() public {}
 
     /*///////////////////////////////////////////////////////////////
                         DEPOSIT/WITHDRAWAL TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function testDeposit(uint256 amount) public {
-        if (amount < 1e9 || amount > 1e36) return;
+    function testDeposit() public {
+        //amount = bound(amount, 1e5, 1e27);
+        uint256 amount = 1e18;
 
-        // Add the asset to the pool and mint tokens.
-        testAddAsset();
-        mintAndApprove(amount);
+        // Mint, approve, and deposit the asset.
+        mintAndApprove(asset, amount);
+        pool.deposit(asset, amount, false);
 
-        // Deposit tokens to the Fuse Pool.
-        pool.deposit(underlying, amount, false);
-
-        // Do checks.
-        // note that the default exchange rate is 1:1, so these values should be set to the input amount.
-        assertEq(pool.totalUnderlying(underlying), amount, "Total underlying not updated");
-        assertEq(pool.balanceOfUnderlying(underlying, address(this)), amount, "Balance not updated");
+        // Checks. Note that the default exchange rate is 1,
+        // so the values should be equal to the input amount.
+        assertEq(pool.balanceOf(asset, address(this)), amount, "Incorrect Balance");
+        assertEq(pool.totalUnderlying(asset), amount, "Incorrect Total Underlying");
     }
 
-    function testWithdrawal(uint256 amount) public {
-        if (amount < 1e9 || amount > 1e36) return;
+    function testWithdrawal() public {
+        uint256 amount = 1e18;
+        amount = bound(amount, 1e5, 1e27);
 
-        // Deposit tokens to the FusePool.
-        testDeposit(amount);
+        // Mint, approve, and deposit the asset.
+        testDeposit();
 
-        // Withdraw tokens from the FusePool.
-        pool.withdraw(underlying, amount, false);
+        // Withdraw the asset.
+        pool.withdraw(asset, amount, false);
 
-        // Do checks.
-        assertEq(pool.totalUnderlying(underlying), 0, "Total underlying not updated");
-        assertEq(underlying.balanceOf(address(this)), amount, "Tokens not transferred back");
-        assertEq(pool.balanceOfUnderlying(underlying, address(this)), 0, "Balance not updated");
-    }
-
-    /*///////////////////////////////////////////////////////////////
-                    DEPOSIT/WITHDRAWAL SANITY TESTS
-    //////////////////////////////////////////////////////////////*/
-
-    function testFailWithdrawWithNotEnoughBalance(uint256 amount) public {
-        if (amount < 100 || amount > 1e36) revert();
-
-        // Deposit tokens to the FusePool.
-        testDeposit(amount / 2);
-
-        // Withdraw tokens from the FusePool.
-        testWithdrawal(amount);
+        // Checks.
+        assertEq(asset.balanceOf(address(this)), amount, "Incorrect asset balance");
+        assertEq(pool.balanceOf(asset, address(this)), 0, "Incorrect pool balance");
+        assertEq(vault.balanceOf(address(pool)), 0, "Incorrect vault balance");
     }
 
     /*///////////////////////////////////////////////////////////////
-                            FLASHLOAN TESTS
+                  DEPOSIT/WITHDRAWAL SANITY CHECK TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function testFlashLoan() public {
-        // Deposit funds.
-        testDeposit(1e18);
+    /*///////////////////////////////////////////////////////////////
+                         BORROW/REPAYMENT TESTS
+    //////////////////////////////////////////////////////////////*/
 
-        // Deploy a mock flash borrower example.
-        MockFlashBorrower borrower = new MockFlashBorrower();
-        bytes memory data = abi.encode(address(underlying));
+    /*///////////////////////////////////////////////////////////////
+                   BORROW/REPAYMENT SANITY CHECK TESTS
+    //////////////////////////////////////////////////////////////*/
 
-        // Call a flash loan.
-        pool.flashLoan(FlashBorrower(address(borrower)), data, underlying, 1e18);
+    /*///////////////////////////////////////////////////////////////
+                            FLASH LOAN TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    /*///////////////////////////////////////////////////////////////
+                      FLASH LOAN SANITY CHECK TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    /*///////////////////////////////////////////////////////////////
+                            LIQUIDATION TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    /*///////////////////////////////////////////////////////////////
+                    LIQUIDATION SANITY CHECK TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    /*///////////////////////////////////////////////////////////////
+                                 UTILS
+    //////////////////////////////////////////////////////////////*/
+
+    // Mint and approve assets.
+    function mintAndApprove(MockERC20 asset, uint256 amount) internal {
+        asset.mint(address(this), amount);
+        asset.approve(address(pool), amount);
     }
 
-    // Mint and approve tokens.
-    function mintAndApprove(uint256 amount) internal {
-        underlying.mint(address(this), amount);
-        underlying.approve(address(pool), amount);
+    // Bound a value between a min and max.
+    function bound(
+        uint256 x,
+        uint256 min,
+        uint256 max
+    ) internal pure returns (uint256 result) {
+        require(max >= min, "MAX_LESS_THAN_MIN");
+
+        uint256 size = max - min;
+
+        if (max != type(uint256).max) size++; // Make the max inclusive.
+        if (size == 0) return min; // Using max would be equivalent as well.
+        // Ensure max is inclusive in cases where x != 0 and max is at uint max.
+        if (max == type(uint256).max && x != 0) x--; // Accounted for later.
+
+        if (x < min) x += size * (((min - x) / size) + 1);
+        result = min + ((x - min) % size);
+
+        // Account for decrementing x to make max inclusive.
+        if (max == type(uint256).max && x != 0) result++;
     }
 }
