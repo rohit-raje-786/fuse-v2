@@ -84,6 +84,28 @@ contract FusePoolTest is DSTestPlus {
         assertEq(vault.balanceOf(address(pool)), 0, "Incorrect vault balance");
     }
 
+    function testDepositEnableCollateral() public {
+        uint256 amount = 1e18;
+
+        // Mint, approve, and deposit the asset.
+        mintAndApprove(asset, amount);
+        pool.deposit(asset, amount, true);
+
+        // Checks.
+        assert(pool.enabledCollateral(address(this), asset));
+    }
+
+    function testWithdrawDisableCollateral() public {
+        // Deposit and enable the asset as collateral.
+        testDepositEnableCollateral();
+
+        // Withdraw the asset and disable it as collateral.
+        pool.withdraw(asset, 1e18, true);
+
+        // Checks.
+        assert(!pool.enabledCollateral(address(this), asset));
+    }
+
     /*///////////////////////////////////////////////////////////////
                   DEPOSIT/WITHDRAWAL SANITY CHECK TESTS
     //////////////////////////////////////////////////////////////*/
