@@ -43,7 +43,7 @@ contract FusePoolFactory is Auth {
 
     /// @notice Deploy a new Fuse Pool.
     /// @return pool The address of the newly deployed pool.
-    function deployFusePool(string memory name, PriceOracle oracle) external returns (FusePool pool, uint256 number) {
+    function deployFusePool(string memory name) external returns (FusePool pool, uint256 number) {
         // Calculate pool ID.
         number = poolNumber + 1;
 
