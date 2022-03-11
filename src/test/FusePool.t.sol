@@ -56,11 +56,9 @@ contract FusePoolTest is DSTestPlus {
         borrowAsset = new MockERC20("Borrow Test Token", "TBT", 18);
         borrowVault = new MockERC4626(ERC20(borrowAsset), "Borrow Test Token Vault", "TBT");
 
-        pool.configureAsset(borrowAsset, borrowVault, FusePool.Configuration(0, 0.5e18));
+        pool.configureAsset(borrowAsset, borrowVault, FusePool.Configuration(0, 1e18));
         pool.setInterestRateModel(borrowAsset, pool.interestRateModels(asset));
     }
-
-    function testAddAsset() public {}
 
     /*///////////////////////////////////////////////////////////////
                         DEPOSIT/WITHDRAWAL TESTS
@@ -152,6 +150,25 @@ contract FusePoolTest is DSTestPlus {
     /*///////////////////////////////////////////////////////////////
                          BORROW/REPAYMENT TESTS
     //////////////////////////////////////////////////////////////*/
+
+    function testBorrow() public {
+        // Deposit tokens and enable them as collateral.
+        testDepositEnableCollateral();
+
+        // Mint borrow tokens and supply them to the pool.
+        mintAndApprove(borrowAsset, 1e18);
+        pool.deposit(borrowAsset, 1e18, false);
+
+        // Set the price of collateral to 1 ETH.
+        oracle.updatePrice(asset, 1e18);
+
+        // Set the price of the borrow asset to 2 ETH.
+        // This means that with a 0.5 lend factor, we should be able to borrow 0.25 ETH.
+        oracle.updatePrice(borrowAsset, 2e18);
+
+        // Borrow the asset.
+        pool.borrow(borrowAsset, 0.25e18);
+    }
 
     /*///////////////////////////////////////////////////////////////
                    BORROW/REPAYMENT SANITY CHECK TESTS
