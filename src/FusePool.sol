@@ -266,6 +266,9 @@ contract FusePool is Auth {
         // TODO: is this the right place to accrue interest?
         accrueInterest(asset);
 
+        // Enable the asset, if it is not already enabled.
+        enableAsset(asset);
+
         // Ensure the caller is able to execute this borrow.
         require(canBorrow(asset, msg.sender, amount));
 
@@ -279,6 +282,7 @@ contract FusePool is Auth {
         totalInternalDebt[asset] += debtUnits;
 
         // Transfer tokens to the borrower.
+        vaults[asset].withdraw(address(this), amount);
         asset.transfer(msg.sender, amount);
 
         // Emit the event.
