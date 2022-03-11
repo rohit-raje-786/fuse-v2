@@ -151,13 +151,16 @@ contract FusePoolTest is DSTestPlus {
                          BORROW/REPAYMENT TESTS
     //////////////////////////////////////////////////////////////*/
 
-    function testBorrow() public {
+    function testBorrow(uint256 amount) public {
+        amount = bound(amount, 1e5, 1e27);
+
         // Deposit tokens and enable them as collateral.
-        testDepositEnableCollateral();
+        mintAndApprove(asset, amount);
+        pool.deposit(asset, amount, true);
 
         // Mint borrow tokens and supply them to the pool.
-        mintAndApprove(borrowAsset, 1e18);
-        pool.deposit(borrowAsset, 1e18, false);
+        mintAndApprove(borrowAsset, amount / 4);
+        pool.deposit(borrowAsset, amount / 4, false);
 
         // Set the price of collateral to 1 ETH.
         oracle.updatePrice(asset, 1e18);
@@ -167,7 +170,7 @@ contract FusePoolTest is DSTestPlus {
         oracle.updatePrice(borrowAsset, 2e18);
 
         // Borrow the asset.
-        pool.borrow(borrowAsset, 0.25e18);
+        pool.borrow(borrowAsset, amount / 4);
     }
 
     /*///////////////////////////////////////////////////////////////
