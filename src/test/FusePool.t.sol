@@ -110,6 +110,35 @@ contract FusePoolTest is DSTestPlus {
                   DEPOSIT/WITHDRAWAL SANITY CHECK TESTS
     //////////////////////////////////////////////////////////////*/
 
+    function testFailDepositWithNotEnoughApproval() public {
+        // Mint tokens.
+        asset.mint(address(this), 1e18);
+
+        // Approve the pool to spend half of the tokens.
+        asset.approve(address(pool), 0.5e18);
+
+        // Attempt to deposit the tokens.
+        pool.deposit(asset, 1e18, false);
+    }
+
+    function testFailWithdrawWithNotEnoughBalance() public {
+        // Mint tokens.
+        testDeposit(1e18);
+
+        // Attempt to withdraw the tokens.
+        pool.withdraw(asset, 2e18, false);
+    }
+
+    function testFailWithdrawWithNoBalance() public {
+        // Attempt to withdraw tokens.
+        pool.withdraw(asset, 1e18, false);
+    }
+
+    function testFailWithNoApproval() public {
+        // Attempt to deposit tokens.
+        pool.deposit(asset, 1e18, false);
+    }
+
     /*///////////////////////////////////////////////////////////////
                          BORROW/REPAYMENT TESTS
     //////////////////////////////////////////////////////////////*/
