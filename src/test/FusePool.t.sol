@@ -31,6 +31,10 @@ contract FusePoolTest is DSTestPlus {
     /* Mocks */
     MockERC20 asset;
     MockERC4626 vault;
+
+    MockERC20 borrowAsset;
+    MockERC4626 borrowVault;
+
     MockPriceOracle oracle;
     MockFlashBorrower flashBorrower;
     MockInterestRateModel interestRateModel;
@@ -41,13 +45,19 @@ contract FusePoolTest is DSTestPlus {
 
         asset = new MockERC20("Test Token", "TEST", 18);
         vault = new MockERC4626(ERC20(asset), "Test Token Vault", "TEST");
-        pool.configureAsset(asset, vault, FusePool.Configuration(0, 0));
 
+        pool.configureAsset(asset, vault, FusePool.Configuration(0.5e18, 0));
         pool.setInterestRateModel(asset, InterestRateModel(address(new MockInterestRateModel())));
 
         oracle = new MockPriceOracle();
         oracle.updatePrice(ERC20(asset), 1e18);
         pool.setOracle(PriceOracle(address(oracle)));
+
+        borrowAsset = new MockERC20("Borrow Test Token", "TBT", 18);
+        borrowVault = new MockERC4626(ERC20(borrowAsset), "Borrow Test Token Vault", "TBT");
+
+        pool.configureAsset(borrowAsset, borrowVault, FusePool.Configuration(0, 0.5e18));
+        pool.setInterestRateModel(borrowAsset, pool.interestRateModels(asset));
     }
 
     function testAddAsset() public {}
