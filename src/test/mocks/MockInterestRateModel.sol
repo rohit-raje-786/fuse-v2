@@ -1,5 +1,7 @@
 pragma solidity 0.8.10;
 
+import "forge-std/console.sol";
+
 /// @title Interest Rate Module Interface
 contract MockInterestRateModel {
     /**
@@ -13,7 +15,9 @@ contract MockInterestRateModel {
         uint256 cash,
         uint256 borrows,
         uint256 reserves
-    ) public view returns (uint256) {}
+    ) public view returns (uint256) {
+        return 1.05 * 1e18;
+    }
 
     /**
      * @notice Calculates the current supply interest rate per block
@@ -39,7 +43,7 @@ contract MockInterestRateModel {
         uint256 cash,
         uint256 borrows,
         uint256 reserves
-    ) public pure returns (uint256) {
+    ) public view returns (uint256) {
         // Utilization rate is 0 when there are no borrows
         if (borrows == 0) {
             return 0;
