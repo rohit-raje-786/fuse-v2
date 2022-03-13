@@ -281,6 +281,9 @@ contract FusePool is Auth {
         // Add to the asset's total internal debt.
         totalInternalDebt[asset] += debtUnits;
 
+        // Update the cached debt of the asset.
+        cachedTotalBorrows[asset] += amount;
+
         // Transfer tokens to the borrower.
         vaults[asset].withdraw(address(this), amount);
         asset.transfer(msg.sender, amount);
@@ -306,7 +309,7 @@ contract FusePool is Auth {
         totalInternalDebt[asset] -= debtUnits;
 
         // Transfer tokens from the user.
-        asset.safeTransferFrom(msg.sender, address(this), amount);
+        asset.safeTransferFrom(msg.sender, address(this), amount - 1);
 
         // Accrue interest.
         // TODO: is this the right place to accrue interest?
@@ -547,7 +550,7 @@ contract FusePool is Auth {
 
         // If the delta is equal to the block number (a borrow/repayment has never occured)
         // return a value of 0.
-        if (blockDelta == block.number) return 0;
+        if (blockDelta == block.number) return cachedTotalBorrows[asset];
 
         // Calculate the interest accumulator.
         uint256 interestAccumulator = interestRate.fpow(blockDelta, 1e18);
