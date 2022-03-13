@@ -171,6 +171,41 @@ contract FusePoolTest is DSTestPlus {
 
         // Borrow the asset.
         pool.borrow(borrowAsset, amount / 4);
+
+        // Checks.
+        assertEq(borrowAsset.balanceOf(address(this)), amount / 4);
+        assertEq(pool.borrowBalance(borrowAsset, address(this)), amount / 4);
+        assertEq(pool.totalBorrows(borrowAsset), amount / 4);
+        assertEq(pool.totalUnderlying(borrowAsset), amount / 4);
+    }
+
+    function testRepay(uint256 amount) public {
+        amount = bound(amount, 1e5, 1e27);
+
+        // Borrow tokens.
+        testBorrow(amount);
+
+        // Repay the tokens.
+        borrowAsset.approve(address(pool), amount / 4);
+        pool.repay(borrowAsset, amount / 4);
+    }
+
+    function testBorrowBalanceIncrease() public {
+        uint256 amount = 1e18;
+        amount = bound(amount, 1e5, 1e27);
+
+        // Warp block number to 1.
+        HEVM(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D).roll(block.number + 5);
+
+        // Borrow tokens.
+        testBorrow(amount);
+
+        // Warp block number to 6.
+        HEVM(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D).roll(block.number + 5);
+
+        console.log(pool.totalBorrows(borrowAsset));
+
+        // Checks.
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -224,4 +259,8 @@ contract FusePoolTest is DSTestPlus {
         // Account for decrementing x to make max inclusive.
         if (max == type(uint256).max && x != 0) result++;
     }
+}
+
+interface HEVM {
+    function roll(uint256) external;
 }
