@@ -20,10 +20,14 @@ import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
 import {MockFlashBorrower} from "./mocks/MockFlashBorrower.sol";
 import {MockInterestRateModel} from "./mocks/MockInterestRateModel.sol";
 
+import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
+
 import "forge-std/console.sol";
 
 /// @title Fuse Pool Factory Test Contract
 contract FusePoolTest is DSTestPlus {
+    using FixedPointMathLib for uint256;
+
     /* Fuse Pool Contracts */
     FusePoolFactory factory;
     FusePool pool;
@@ -203,9 +207,15 @@ contract FusePoolTest is DSTestPlus {
         // Warp block number to 6.
         HEVM(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D).roll(block.number + 5);
 
-        console.log(pool.totalBorrows(borrowAsset));
+        // Calculate the expected amount (after interest).
+        // The borrow rate is constant, so the interest is always 5% per block.
+        // expected = borrowed * interest ^ (blockDelta)
+        uint256 expected = (amount / 4).fmul(uint256(interestRateModel.getBorrowRate(0, 0, 0)).fpow(5, 1e18), 1e18);
 
         // Checks.
+        assertGt(pool.borrowBalance(borrowAsset, address(this)), amount / 4);
+        assertEq(pool.totalBorrows(borrowAsset), expected);
+        assertEq(pool.borrowBalance(borrowAsset, address(this)), expected);
     }
 
     /*///////////////////////////////////////////////////////////////
