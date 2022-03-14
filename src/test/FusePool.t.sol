@@ -194,7 +194,7 @@ contract FusePoolTest is DSTestPlus {
         pool.repay(borrowAsset, amount / 4);
     }
 
-    function testBorrowBalanceIncrease() public {
+    function testInterestAccrual() public {
         uint256 amount = 1e18;
         amount = bound(amount, 1e5, 1e27);
 
