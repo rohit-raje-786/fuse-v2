@@ -49,9 +49,10 @@ contract FusePoolTest is DSTestPlus {
 
         asset = new MockERC20("Test Token", "TEST", 18);
         vault = new MockERC4626(ERC20(asset), "Test Token Vault", "TEST");
+        interestRateModel = new MockInterestRateModel();
 
         pool.configureAsset(asset, vault, FusePool.Configuration(0.5e18, 0));
-        pool.setInterestRateModel(asset, InterestRateModel(address(new MockInterestRateModel())));
+        pool.setInterestRateModel(asset, InterestRateModel(address(interestRateModel)));
 
         oracle = new MockPriceOracle();
         oracle.updatePrice(ERC20(asset), 1e18);
@@ -61,7 +62,7 @@ contract FusePoolTest is DSTestPlus {
         borrowVault = new MockERC4626(ERC20(borrowAsset), "Borrow Test Token Vault", "TBT");
 
         pool.configureAsset(borrowAsset, borrowVault, FusePool.Configuration(0, 1e18));
-        pool.setInterestRateModel(borrowAsset, pool.interestRateModels(asset));
+        pool.setInterestRateModel(borrowAsset, InterestRateModel(address(interestRateModel)));
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -196,7 +197,6 @@ contract FusePoolTest is DSTestPlus {
 
     function testInterestAccrual() public {
         uint256 amount = 1e18;
-        amount = bound(amount, 1e5, 1e27);
 
         // Warp block number to 1.
         HEVM(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D).roll(block.number + 5);
@@ -213,9 +213,10 @@ contract FusePoolTest is DSTestPlus {
         uint256 expected = (amount / 4).fmul(uint256(interestRateModel.getBorrowRate(0, 0, 0)).fpow(5, 1e18), 1e18);
 
         // Checks.
-        assertGt(pool.borrowBalance(borrowAsset, address(this)), amount / 4);
-        assertEq(pool.totalBorrows(borrowAsset), expected);
         assertEq(pool.borrowBalance(borrowAsset, address(this)), expected);
+        assertEq(pool.totalBorrows(borrowAsset), expected);
+        assertEq(pool.totalUnderlying(borrowAsset), expected);
+        assertEq(pool.balanceOf(borrowAsset, address(this)), expected);
     }
 
     /*///////////////////////////////////////////////////////////////
