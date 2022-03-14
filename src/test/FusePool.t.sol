@@ -153,6 +153,29 @@ contract FusePoolTest is DSTestPlus {
     }
 
     /*///////////////////////////////////////////////////////////////
+                         COLLATERALIZATION TESTS
+    //////////////////////////////////////////////////////////////*/
+
+    function testEnableCollateral() public {
+        // Enable asset as collateral.
+        pool.enableAsset(asset);
+
+        // Checks.
+        assertTrue(pool.enabledCollateral(address(this), asset));
+    }
+
+    function testDisableCollateral() external {
+        // Enable the asset as collateral.
+        testEnableCollateral();
+
+        // Disable the asset as collateral.
+        pool.disableAsset(asset);
+
+        // Checks.
+        assertFalse(pool.enabledCollateral(address(this), asset));
+    }
+
+    /*///////////////////////////////////////////////////////////////
                          BORROW/REPAYMENT TESTS
     //////////////////////////////////////////////////////////////*/
 
@@ -222,6 +245,79 @@ contract FusePoolTest is DSTestPlus {
     /*///////////////////////////////////////////////////////////////
                    BORROW/REPAYMENT SANITY CHECK TESTS
     //////////////////////////////////////////////////////////////*/
+
+    function testFailBorrowWithCollateralDisabled(uint256 amount) public {
+        amount = bound(amount, 1e5, 1e27);
+
+        // Deposit tokens and enable them as collateral.
+        mintAndApprove(asset, amount);
+        pool.deposit(asset, amount, false);
+
+        // Mint borrow tokens and supply them to the pool.
+        mintAndApprove(borrowAsset, amount / 2);
+        pool.deposit(borrowAsset, amount / 2, false);
+
+        // Set the price of collateral to 1 ETH.
+        oracle.updatePrice(asset, 1e18);
+
+        // Set the price of the borrow asset to 2 ETH.
+        // This means that with a 0.5 lend factor, we should be able to borrow 0.25 ETH.
+        oracle.updatePrice(borrowAsset, 2e18);
+
+        // Borrow the asset.
+        pool.borrow(borrowAsset, amount / 4);
+    }
+
+    function testFailBorrowWithNoCollateral(uint256 amount) public {
+        amount = bound(amount, 1e5, 1e27);
+
+        // Mint borrow tokens and supply them to the pool.
+        mintAndApprove(borrowAsset, amount);
+        pool.deposit(borrowAsset, amount, false);
+
+        // Set the price of collateral to 1 ETH.
+        oracle.updatePrice(asset, 1e18);
+
+        // Set the price of the borrow asset to 2 ETH.
+        // This means that with a 0.5 lend factor, we should be able to borrow 0.25 ETH.
+        oracle.updatePrice(borrowAsset, 2e18);
+
+        // Borrow the asset.
+        pool.borrow(borrowAsset, amount);
+    }
+
+    function testFailBorrowWithNotEnoughCollateral(uint256 amount) public {
+        amount = bound(amount, 1e5, 1e27);
+
+        // Deposit tokens and enable them as collateral.
+        mintAndApprove(asset, amount);
+        pool.deposit(asset, amount, true);
+
+        // Mint borrow tokens and supply them to the pool.
+        mintAndApprove(borrowAsset, amount / 2);
+        pool.deposit(borrowAsset, amount / 2, false);
+
+        // Set the price of collateral to 1 ETH.
+        oracle.updatePrice(asset, 1e18);
+
+        // Set the price of the borrow asset to 2 ETH.
+        // This means that with a 0.5 lend factor, we should be able to borrow 0.25 ETH.
+        oracle.updatePrice(borrowAsset, 2e18);
+
+        // Borrow the asset.
+        pool.borrow(borrowAsset, amount / 2);
+    }
+
+    function testCannotDisableIfBeingBorrowed() public {
+        // Borrow asset.
+        testBorrow(1e18);
+
+        // Attempt to disable the asset as collateral.
+        pool.disableAsset(borrowAsset);
+
+        // Checks.
+        assertTrue(pool.enabledCollateral(address(this), borrowAsset));
+    }
 
     /*///////////////////////////////////////////////////////////////
                             FLASH LOAN TESTS
