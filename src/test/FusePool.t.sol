@@ -244,9 +244,9 @@ contract FusePoolTest is DSTestPlus {
     //////////////////////////////////////////////////////////////*/
 
     // Mint and approve assets.
-    function mintAndApprove(MockERC20 asset, uint256 amount) internal {
-        asset.mint(address(this), amount);
-        asset.approve(address(pool), amount);
+    function mintAndApprove(MockERC20 underlying, uint256 amount) internal {
+        underlying.mint(address(this), amount);
+        underlying.approve(address(pool), amount);
     }
 
     // Bound a value between a min and max.
