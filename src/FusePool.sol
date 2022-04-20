@@ -372,7 +372,15 @@ contract FusePool is Auth {
                           LIQUIDATION INTERFACE
     //////////////////////////////////////////////////////////////*/
 
-    function liquidateUser() external returns (bool) {}
+    function liquidateUser(address user) external returns (bool) {}
+
+    /// @dev Returns a boolean indicating whether a user is liquidatable.
+    /// @param user The user to check.
+    function userLiquidatable(address user) public view returns (bool) {
+        // Call canBorrow(), passing in a non-existant asset and a borrow amount of 0.
+        // This will just check the contract's current state.
+        return canBorrow(ERC20(address(0)), user, 0);
+    }
 
     /*///////////////////////////////////////////////////////////////
                       COLLATERALIZATION INTERFACE
@@ -593,14 +601,6 @@ contract FusePool is Auth {
         // is greater than or equal to this number, the system will
         // not allow them to borrow any more assets.
         uint256 actualBorrowable;
-    }
-
-    /// @dev Returns a boolean indicating whether a user is liquidatable.
-    /// @param user The user to check.
-    function userLiquidatable(address user) public view returns (bool) {
-        // Call canBorrow(), passing in a non-existant asset and a borrow amount of 0.
-        // This will just check the contract's current state.
-        return canBorrow(ERC20(address(0)), user, 0);
     }
 
     /// @dev Identify whether a user is able to execute a borrow.
