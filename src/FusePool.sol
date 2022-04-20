@@ -379,7 +379,7 @@ contract FusePool is Auth {
     function userLiquidatable(address user) public view returns (bool) {
         // Call canBorrow(), passing in a non-existant asset and a borrow amount of 0.
         // This will just check the contract's current state.
-        return canBorrow(ERC20(address(0)), user, 0);
+        return !canBorrow(ERC20(address(0)), user, 0);
     }
 
     /*///////////////////////////////////////////////////////////////
