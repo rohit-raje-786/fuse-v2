@@ -182,7 +182,7 @@ contract FusePool is Auth {
         require(amount > 0, "INVALID_AMOUNT");
 
         // Calculate the amount of internal balance units to be stored.
-        uint256 shares = amount.fdiv(internalBalanceExchangeRate(asset), baseUnits[asset]);
+        uint256 shares = amount.mulDivDown(baseUnits[asset], internalBalanceExchangeRate(asset));
 
         // Modify the internal balance of the sender.
         internalBalances[asset][msg.sender] += shares;
@@ -196,7 +196,7 @@ contract FusePool is Auth {
         // Deposit the underlying tokens into the designated vault.
         ERC4626 vault = vaults[asset];
         asset.approve(address(vault), amount);
-        vault.deposit(address(this), amount);
+        vault.deposit(amount, address(this));
 
         // If `enable` is set to true, enable the asset as collateral.
         if (enable) enableAsset(asset);
@@ -218,7 +218,7 @@ contract FusePool is Auth {
         require(amount > 0, "AMOUNT_TOO_LOW");
 
         // Calculate the amount of internal balance units to be subtracted.
-        uint256 shares = amount.fdiv(internalBalanceExchangeRate(asset), baseUnits[asset]);
+        uint256 shares = amount.mulDivDown(baseUnits[asset], internalBalanceExchangeRate(asset));
 
         // Modify the internal balance of the sender.
         internalBalances[asset][msg.sender] -= shares;
@@ -227,7 +227,7 @@ contract FusePool is Auth {
         totalInternalBalances[asset] -= shares;
 
         // Withdraw the underlying tokens from the designated vault.
-        vaults[asset].withdraw(address(this), amount);
+        vaults[asset].withdraw(amount, address(this), address(this));
 
         // Transfer underlying to the user.
         asset.safeTransfer(msg.sender, amount);
@@ -273,7 +273,7 @@ contract FusePool is Auth {
         require(canBorrow(asset, msg.sender, amount));
 
         // Calculate the amount of internal debt units to be stored.
-        uint256 debtUnits = amount.fdiv(internalDebtExchangeRate(asset), baseUnits[asset]);
+        uint256 debtUnits = amount.mulDivDown(baseUnits[asset], internalDebtExchangeRate(asset));
 
         // Update the internal borrow balance of the borrower.
         internalDebt[asset][msg.sender] += debtUnits;
@@ -285,7 +285,7 @@ contract FusePool is Auth {
         cachedTotalBorrows[asset] += amount;
 
         // Transfer tokens to the borrower.
-        vaults[asset].withdraw(address(this), amount);
+        vaults[asset].withdraw(amount, address(this), address(this));
         asset.transfer(msg.sender, amount);
 
         // Emit the event.
@@ -300,7 +300,7 @@ contract FusePool is Auth {
         require(amount > 0, "AMOUNT_TOO_LOW");
 
         // Calculate the amount of internal debt units to be stored.
-        uint256 debtUnits = amount.fdiv(internalDebtExchangeRate(asset), baseUnits[asset]);
+        uint256 debtUnits = amount.mulDivDown(baseUnits[asset], internalDebtExchangeRate(asset));
 
         // Update the internal borrow balance of the borrower.
         internalDebt[asset][msg.sender] -= debtUnits;
@@ -350,7 +350,7 @@ contract FusePool is Auth {
         uint256 liquidity = availableLiquidity(asset);
 
         // Withdraw the amount from the Vault and trasnfer it to the borrower.
-        vaults[asset].withdraw(address(borrower), amount);
+        vaults[asset].withdraw(amount, address(borrower), address(borrower));
 
         // Update the flash borrow amount.
         flashBorrowed[asset] = amount;
@@ -359,7 +359,8 @@ contract FusePool is Auth {
         borrower.execute(amount, data);
 
         // Ensure the sufficient amount has been returned.
-        require(vaults[asset].balanceOfUnderlying(address(this)) + amount > liquidity, "AMOUNT_NOT_RETURNED");
+        ERC4626 vault = vaults[asset];
+        require(vault.convertToAssets(vault.balanceOf(address(this))) + amount > liquidity, "AMOUNT_NOT_RETURNED");
 
         // Reset the flash borrow amount.
         delete flashBorrowed[asset];
@@ -461,7 +462,8 @@ contract FusePool is Auth {
     /// @param asset The underlying asset.
     function availableLiquidity(ERC20 asset) public view returns (uint256) {
         // Return the Fuse Pool's underlying balance in the designated ERC4626 vault.
-        return vaults[asset].balanceOfUnderlying(address(this));
+        ERC4626 vault = vaults[asset];
+        return vault.convertToAssets(vault.balanceOf(address(this)));
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -481,7 +483,7 @@ contract FusePool is Auth {
     /// @param user The user to get the underlying balance of.
     function balanceOf(ERC20 asset, address user) public view returns (uint256) {
         // Multiply the user's internal balance units by the internal exchange rate of the asset.
-        return internalBalances[asset][user].fmul(internalBalanceExchangeRate(asset), baseUnits[asset]);
+        return internalBalances[asset][user].mulDivDown(internalBalanceExchangeRate(asset), baseUnits[asset]);
     }
 
     /// @dev Returns the exchange rate between underlying tokens and internal balance units.
@@ -494,7 +496,7 @@ contract FusePool is Auth {
         if (totalInternalBalance == 0) return baseUnits[asset];
 
         // Otherwise, divide the total supplied underlying by the total internal balance units.
-        return totalUnderlying(asset).fdiv(totalInternalBalance, baseUnits[asset]);
+        return totalUnderlying(asset).mulDivDown(baseUnits[asset], totalInternalBalance);
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -514,7 +516,7 @@ contract FusePool is Auth {
     /// @param user The user to get the underlying borrow balance of.
     function borrowBalance(ERC20 asset, address user) public view returns (uint256) {
         // Multiply the user's internal debt units by the internal debt exchange rate of the asset.
-        return internalDebt[asset][user].fmul(internalDebtExchangeRate(asset), baseUnits[asset]);
+        return internalDebt[asset][user].mulDivDown(internalDebtExchangeRate(asset), baseUnits[asset]);
     }
 
     /// @dev Returns the exchange rate between underlying tokens and internal debt units.
@@ -527,7 +529,7 @@ contract FusePool is Auth {
         if (totalInternalDebtUnits == 0) return baseUnits[asset];
 
         // Otherwise, divide the total borrowed underlying by the total amount of internal debt units.
-        return totalBorrows(asset).fdiv(totalInternalDebtUnits, baseUnits[asset]);
+        return totalBorrows(asset).mulDivDown(baseUnits[asset], totalInternalDebtUnits);
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -567,10 +569,10 @@ contract FusePool is Auth {
         if (blockDelta == block.number) return cachedTotalBorrows[asset];
 
         // Calculate the interest accumulator.
-        uint256 interestAccumulator = interestRate.fpow(blockDelta, 1e18);
+        uint256 interestAccumulator = interestRate.rpow(blockDelta, 1e18);
 
         // Accrue interest.
-        return cachedTotalBorrows[asset].fmul(interestAccumulator, 1e18);
+        return cachedTotalBorrows[asset].mulWadDown(interestAccumulator);
     }
 
     /// @dev Update the cached total borrow amount for a given asset.
@@ -625,8 +627,8 @@ contract FusePool is Auth {
             // Calculate the user's maximum borrowable value for this asset.
             // balanceOfUnderlying(asset,user) * ethPrice * collateralFactor.
             liquidity.maximumBorrowawble += balanceOf(utilized[i], user)
-                .fmul(oracle.getUnderlyingPrice(utilized[i]), baseUnits[utilized[i]])
-                .fmul(configurations[utilized[i]].lendFactor, 1e18);
+                .mulDivDown(oracle.getUnderlyingPrice(utilized[i]), baseUnits[utilized[i]])
+                .mulDivDown(configurations[utilized[i]].lendFactor, 1e18);
 
             // Calculate the user's hypothetical borrow balance for this asset.
             uint256 hypotheticalBorrowBalance = utilized[i] == asset
@@ -634,26 +636,26 @@ contract FusePool is Auth {
                 : borrowBalance(utilized[i], user);
 
             // Add the user's borrow balance in this asset to their total borrow balance.
-            liquidity.borrowBalance += hypotheticalBorrowBalance.fmul(
+            liquidity.borrowBalance += hypotheticalBorrowBalance.mulDivDown(
                 oracle.getUnderlyingPrice(utilized[i]),
                 baseUnits[utilized[i]]
             );
 
             // Multiply the user's borrow balance in this asset by the borrow factor.
             liquidity.borrowBalancesTimesBorrowFactors += hypotheticalBorrowBalance
-                .fmul(oracle.getUnderlyingPrice(utilized[i]), baseUnits[utilized[i]])
-                .fmul(configurations[utilized[i]].borrowFactor, 1e18);
+                .mulDivDown(oracle.getUnderlyingPrice(utilized[i]), baseUnits[utilized[i]])
+                .mulWadDown(configurations[utilized[i]].borrowFactor);
         }
 
         // Calculate the user's actual borrowable value.
-        uint256 actualBorrowable = liquidity.borrowBalancesTimesBorrowFactors.fdiv(liquidity.borrowBalance, 1e18).fmul(
-            liquidity.maximumBorrowawble,
-            1e18
-        );
+        uint256 actualBorrowable = liquidity
+            .borrowBalancesTimesBorrowFactors
+            .divWadDown(liquidity.borrowBalance)
+            .mulWadDown(liquidity.maximumBorrowawble);
 
         // Return whether the user's hypothetical borrow value is
         // less than or equal to their borrowable value.
-        return actualBorrowable.fdiv(liquidity.borrowBalance, 1e18);
+        return actualBorrowable.divWadDown(liquidity.borrowBalance);
     }
 
     /// @dev Identify whether a user is able to execute a borrow.
