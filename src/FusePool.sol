@@ -603,15 +603,15 @@ contract FusePool is Auth {
         uint256 actualBorrowable;
     }
 
-    /// @dev Identify whether a user is able to execute a borrow.
+    /// @dev Calculate the health factor of a user after a borrow occurs.
     /// @param asset The underlying asset.
     /// @param user The user to check.
     /// @param amount The amount of underlying to borrow.
-    function canBorrow(
+    function calculateHealthFactor(
         ERC20 asset,
         address user,
         uint256 amount
-    ) internal view returns (bool) {
+    ) internal view returns (uint256) {
         // TODO: OPTIMIZE + CLEANUP
 
         // Allocate memory to store the user's account liquidity.
@@ -653,6 +653,19 @@ contract FusePool is Auth {
 
         // Return whether the user's hypothetical borrow value is
         // less than or equal to their borrowable value.
-        return liquidity.borrowBalance <= actualBorrowable;
+        return actualBorrowable.fdiv(liquidity.borrowBalance, 1e18);
+    }
+
+    /// @dev Identify whether a user is able to execute a borrow.
+    /// @param asset The underlying asset.
+    /// @param user The user to check.
+    /// @param amount The amount of underlying to borrow.
+    function canBorrow(
+        ERC20 asset,
+        address user,
+        uint256 amount
+    ) internal view returns (bool) {
+        // Ensure the user's health factor will be greater than 1.
+        return calculateHealthFactor(asset, user, amount) >= 1e18;
     }
 }
