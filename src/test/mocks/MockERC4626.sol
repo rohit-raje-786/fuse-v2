@@ -17,7 +17,7 @@ contract MockERC4626 is ERC4626 {
         return asset.balanceOf(address(this));
     }
 
-    function totalAssets() public view returns (uint256) {
+    function totalAssets() public view override returns (uint256) {
         return asset.balanceOf(address(this));
     }
 }
