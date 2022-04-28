@@ -4,23 +4,23 @@ pragma solidity 0.8.10;
 import {FusePool, FusePoolFactory} from "../FusePoolFactory.sol";
 
 // TODO: I should not have to import ERC20 from here.
-import {ERC20} from "solmate-next/utils/SafeTransferLib.sol";
+import {ERC20} from "solmate/utils/SafeTransferLib.sol";
 import {DSTestPlus} from "solmate/test/utils/DSTestPlus.sol";
 
-import {Authority} from "solmate-next/auth/Auth.sol";
+import {Authority} from "solmate/auth/Auth.sol";
 import {DSTest} from "ds-test/test.sol";
 
 import {PriceOracle} from "../interface/PriceOracle.sol";
 import {InterestRateModel} from "../interface/InterestRateModel.sol";
 import {FlashBorrower} from "../interface/FlashBorrower.sol";
 
-import {MockERC20} from "solmate-next/test/utils/mocks/MockERC20.sol";
+import {MockERC20} from "solmate/test/utils/mocks/MockERC20.sol";
 import {MockERC4626} from "./mocks/MockERC4626.sol";
 import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
 import {MockFlashBorrower} from "./mocks/MockFlashBorrower.sol";
 import {MockInterestRateModel} from "./mocks/MockInterestRateModel.sol";
 
-import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
 import "forge-std/console.sol";
 

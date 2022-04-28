@@ -4,7 +4,7 @@ pragma solidity 0.8.10;
 import {FusePool} from "./FusePool.sol";
 import {PriceOracle} from "./interface/PriceOracle.sol";
 
-import {Auth, Authority} from "solmate-next/auth/Auth.sol";
+import {Auth, Authority} from "solmate/auth/Auth.sol";
 import {Bytes32AddressLib} from "solmate/utils/Bytes32AddressLib.sol";
 
 /// @title Fuse Pool Factory

@@ -6,8 +6,8 @@ import {FusePool, FusePoolFactory} from "../FusePoolFactory.sol";
 import {MockPriceOracle} from "./mocks/MockPriceOracle.sol";
 import {PriceOracle} from "../interface/PriceOracle.sol";
 
-import {Authority} from "solmate-next/auth/Auth.sol";
-import {DSTestPlus} from "solmate-next/test/utils/DSTestPlus.sol";
+import {Authority} from "solmate/auth/Auth.sol";
+import {DSTestPlus} from "solmate/test/utils/DSTestPlus.sol";
 
 /// @title Fuse Pool Factory Test Contract
 contract FusePoolFactoryTest is DSTestPlus {

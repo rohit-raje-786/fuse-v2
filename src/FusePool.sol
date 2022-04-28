@@ -3,17 +3,17 @@ pragma solidity 0.8.10;
 
 import {FusePoolFactory} from "./FusePoolFactory.sol";
 
-import {ERC20} from "solmate-next/tokens/ERC20.sol";
-import {ERC4626} from "solmate-next/mixins/ERC4626.sol";
-import {Auth, Authority} from "solmate-next/auth/Auth.sol";
+import {ERC20} from "solmate/tokens/ERC20.sol";
+import {ERC4626} from "solmate/mixins/ERC4626.sol";
+import {Auth, Authority} from "solmate/auth/Auth.sol";
 
 import {PriceOracle} from "./interface/PriceOracle.sol";
 import {InterestRateModel} from "./interface/InterestRateModel.sol";
 import {FlashBorrower} from "./interface/FlashBorrower.sol";
 
-import {SafeTransferLib} from "solmate-next/utils/SafeTransferLib.sol";
-import {SafeCastLib} from "solmate-next/utils/SafeCastLib.sol";
-import {FixedPointMathLib} from "solmate-next/utils/FixedPointMathLib.sol";
+import {SafeTransferLib} from "solmate/utils/SafeTransferLib.sol";
+import {SafeCastLib} from "solmate/utils/SafeCastLib.sol";
+import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 
 /// @title Fuse Pool
 /// @author Jet Jadeja <jet@rari.capital>
