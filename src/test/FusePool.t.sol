@@ -233,7 +233,7 @@ contract FusePoolTest is DSTestPlus {
         // Calculate the expected amount (after interest).
         // The borrow rate is constant, so the interest is always 5% per block.
         // expected = borrowed * interest ^ (blockDelta)
-        uint256 expected = (amount / 4).fmul(uint256(interestRateModel.getBorrowRate(0, 0, 0)).fpow(5, 1e18), 1e18);
+        uint256 expected = (amount / 4).mulWadDown(uint256(interestRateModel.getBorrowRate(0, 0, 0)).rpow(5, 1e18));
 
         // Checks.
         assertEq(pool.borrowBalance(borrowAsset, address(this)), expected);
