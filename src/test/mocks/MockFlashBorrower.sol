@@ -16,6 +16,6 @@ contract MockFlashBorrower is DSTest {
         asset.approve(address(vault), amount);
 
         // Deposit tokens back into the Vault contract on behalf of the Fuse Pool.
-        vault.deposit(msg.sender, amount);
+        vault.deposit(amount, msg.sender);
     }
 }
