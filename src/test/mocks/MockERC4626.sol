@@ -7,17 +7,17 @@ contract MockERC4626 is ERC4626 {
         ERC20 underlying,
         string memory name,
         string memory symbol
-    ) public ERC4626(underlying, name, symbol) {}
+    ) ERC4626(underlying, name, symbol) {}
 
     function beforeWithdraw(uint256 underlyingAmount) internal override {}
 
     function afterDeposit(uint256 underlyingAmount) internal override {}
 
-    function balanceOfUnderlying(address) public view override returns (uint256) {
-        return underlying.balanceOf(address(this));
+    function balanceOfUnderlying(address) public view returns (uint256) {
+        return asset.balanceOf(address(this));
     }
 
-    function totalHoldings() public view override returns (uint256) {
-        return underlying.balanceOf(address(this));
+    function totalAssets() public view returns (uint256) {
+        return asset.balanceOf(address(this));
     }
 }
