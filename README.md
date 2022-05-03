@@ -1,6 +1,6 @@
-# fuse
+# fuse-v2 (WIP)
 
-Smart contracts for Fuse by Rari Capital.
+Smart contracts for the second iteration of Fuse by Rari Capital.
 
 ## Setup
 
